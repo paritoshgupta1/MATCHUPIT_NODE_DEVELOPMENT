@@ -1,0 +1,246 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+const result = require('dotenv').config()
+var app = require('../app')
+var debug = require('debug')('mit:server')
+var http = require('http')
+var fs = require('fs')
+var https = require('https')
+const CronJob = require("cron").CronJob;
+const models = require('../models/index');
+const User = require('../models/user')
+const Corporate = require('../models/corporate')
+const { QueryTypes } = require('sequelize');
+// const sendMail = require('../helpers/email/sendgrid').sendMail;
+const sendMail = require('../helpers/email/email').sendMail
+if (result.error) {
+  throw result.error
+}
+
+console.log('..................-------------.....................')
+console.log('.................| ENV CONFIG |.....................')
+console.log('..................-------------.....................')
+console.log(result.parsed)
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000')
+var httpsServer
+// app.set('port', port)
+
+/**
+ * Create HTTP server.
+ */
+
+// var server = http.createServer(app)
+
+if (process.env.ENV !== 'production') {
+  httpsServer = http.createServer(app).listen(port, function () {
+    console.log(`listening on port ${port}`)
+    // var job = new CronJob("0 55 23 * * *", async () => {
+    //   console.log("Runs at 11.55 PM");
+    //   try {
+
+    //     let expiredUsersQuery = `select distinct s1.user_id from subscriptions s1 where end_date <= current_timestamp() and user_Id like 'user-%' and  
+    //     s1.user_id not in(select distinct user_id from subscriptions where end_date >= current_timestamp());`
+    //     const expiredUsers = await models.sequelize.query(expiredUsersQuery, { type: QueryTypes.SELECT, raw: true });
+
+    //     for (let user of expiredUsers) {
+    //       await User.update({ is_active: false }, { where: { id: user.user_id } })
+    //       let userData = await User.findOne({
+    //         where: {
+    //           id: user.user_id
+    //         },
+    //         attributes: ["email"],
+    //         raw: true
+    //       })
+    //       const emailPayload = {
+    //         from: 'no-reply@matchupit.com ',
+    //         to: userData.email,
+    //         subject: 'Deactivation of your matchupIT account',
+    //         html: `<p>Dear User,</p>
+    //         <p>Your account has been deactivated due to subscription expiry. Kindly login to <a href='https://matchupit.com/signin' target='_blank'>matchupit.com/signin</a> and renew your subscription to continue using all features of matchupit.</p>`
+    //       }
+    //       await sendMail(emailPayload);
+    //     }
+
+
+    //     let expiredCorporatesQuery = `select distinct s1.user_id from subscriptions s1 where end_date <= current_timestamp() and user_Id like 'c-%' and  
+    //     s1.user_id not in(select distinct user_id from subscriptions where end_date >= current_timestamp());`
+    //     const expiredCorporates = await models.sequelize.query(expiredCorporatesQuery, { type: QueryTypes.SELECT, raw: true });
+
+    //     for (let user of expiredCorporates) {
+    //       await Corporate.update({ is_active: false }, { where: { id: user.user_id } })
+    //       let corporateData = await Corporate.findOne({
+    //         where: {
+    //           id: user.user_id
+    //         },
+    //         attributes: ["email"],
+    //         raw: true
+    //       })
+    //       const emailPayload = {
+    //         from: 'no-reply@matchupit.com ',
+    //         to: corporateData.email,
+    //         subject: 'Deactivation of your matchupIT account',
+    //         html: `<p>Dear User,</p>
+    //         <p>Your account has been deactivated due to subscription expiry. Kindly login to <a href='https://matchupit.com/signin' target='_blank'>matchupit.com/signin</a> and renew your subscription to continue using all features of matchupit.</p>`
+    //       }
+    //       await sendMail(emailPayload);
+    //     }
+
+    //   }
+    //   catch (err) {
+    //     console.log('error', err)
+    //   }
+    // });
+    // job.start();
+  })
+} else {
+const godaddy_priv = fs.readFileSync('/etc/ssl/private/godaddy_privkey.pem', 'utf8');
+const godaddy_cert = fs.readFileSync('/etc/ssl/certs/godaddy_cert.pem', 'utf8');
+const godaddy_ca01 = fs.readFileSync('/etc/ssl/certs/godaddy_bundle/gd_bundle_01.crt', 'utf8');
+const godaddy_ca02 = fs.readFileSync('/etc/ssl/certs/godaddy_bundle/gd_bundle_02.crt', 'utf8');
+const godaddy_ca03 = fs.readFileSync('/etc/ssl/certs/godaddy_bundle/gd_bundle_03.crt', 'utf8');
+const options = {
+	key: godaddy_priv,
+ 	cert: godaddy_cert,
+	ca:[godaddy_ca01,godaddy_ca02,godaddy_ca03]
+ };
+  
+  httpsServer = https.createServer(options,app).listen('443', function () {  
+    console.log(`listening on port ${port}`)
+    // var job = new CronJob("0 55 23 * * *", async () => {
+    //   console.log("Runs at 11.55 PM");
+    //   try {
+
+    //     let expiredUsersQuery = `select distinct s1.user_id from subscriptions s1 where end_date <= current_timestamp() and user_Id like 'user-%' and  
+    //     s1.user_id not in(select distinct user_id from subscriptions where end_date >= current_timestamp());`
+    //     const expiredUsers = await models.sequelize.query(expiredUsersQuery, { type: QueryTypes.SELECT, raw: true });
+
+    //     for (let user of expiredUsers) {
+    //       await User.update({ is_active: false }, { where: { id: user.user_id } })
+    //       let userData = await User.findOne({
+    //         where: {
+    //           id: user.user_id
+    //         },
+    //         attributes: ["email"],
+    //         raw: true
+    //       })
+    //       const emailPayload = {
+    //         from: 'no-reply@matchupit.com ',
+    //         to: userData.email,
+    //         subject: 'Deactivation of your matchupIT account',
+    //         html: `<p>Dear User,</p>
+    //         <p>Your account has been deactivated due to subscription expiry. Kindly login to <a href='https://matchupit.com/signin' target='_blank'>matchupit.com/signin</a> and renew your subscription to continue using all features of matchupit.</p>`
+    //       }
+    //       await sendMail(emailPayload);
+    //     }
+
+    //     let expiredCorporatesQuery = `select distinct s1.user_id from subscriptions s1 where end_date <= current_timestamp() and user_Id like 'c-%' and  
+    //     s1.user_id not in(select distinct user_id from subscriptions where end_date >= current_timestamp());`
+    //     const expiredCorporates = await models.sequelize.query(expiredCorporatesQuery, { type: QueryTypes.SELECT, raw: true });
+
+    //     for (let user of expiredCorporates) {
+    //       await Corporate.update({ is_active: false }, { where: { id: user.user_id } })
+    //       let corporateData = await Corporate.findOne({
+    //         where: {
+    //           id: user.user_id
+    //         },
+    //         attributes: ["email"],
+    //         raw: true
+    //       })
+    //       const emailPayload = {
+    //         from: 'no-reply@matchupit.com ',
+    //         to: corporateData.email,
+    //         subject: 'Deactivation of your matchupIT account',
+    //         html: `<p>Dear User,</p>
+    //         <p>Your account has been deactivated due to subscription expiry. Kindly login to <a href='https://matchupit.com/signin' target='_blank'>matchupit.com/signin</a> and renew your subscription to continue using all features of matchupit.</p>`
+    //       }
+    //       await sendMail(emailPayload);
+    //     }
+
+    //   }
+    //   catch (err) {
+    //     console.log('error', err)
+    //   }
+    // });
+    // job.start();
+  })
+}
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+// server.listen(port,'0.0.0.0')
+// server.on('error', onError)
+// server.on('listening', onListening)
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort (val) {
+  var port = parseInt(val, 10)
+
+  if (isNaN(port)) {
+    // named pipe
+    return val
+  }
+
+  if (port >= 0) {
+    // port number
+    return port
+  }
+
+  return false
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError (error) {
+  if (error.syscall !== 'listen') {
+    throw error
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges')
+      process.exit(1)
+      break
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use')
+      process.exit(1)
+      break
+    default:
+      throw error
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening () {
+  var addr = httpsServer.address()
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port
+  console.log('Running Mode :' + process.env.ENV)
+  console.log('Listening on ' + bind)
+}
+
+module.exports = app

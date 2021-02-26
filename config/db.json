@@ -1,0 +1,71 @@
+{
+  "development": {
+    "mysql": {
+      "host": "localhost",
+      "db_name": "matchupit_dev",
+      "user_name": "root",
+      "password": "Tejkumar3@",
+      "port":3306,
+      "pool": {
+          "max": 5,
+          "min": 0,
+          "acquire": 30000,
+          "idle": 10000
+        } 
+    },
+    "mongo":{
+      "host": "localhost",
+      "db_name": "matchupit_dev",
+      "user_name": "",
+      "password": "",
+      "port":27017,
+      "connection_str" : "mongodb://localhost:27017/matchupit_dev"
+    }
+  },
+   "production_old": {
+    "mysql": {
+      "host": "matchupit.c6n0jjqytjrq.us-east-2.rds.amazonaws.com",
+      "db_name": "MatchUpIt",
+      "user_name": "admin",
+      "password": "NurLmStDZ6RQZkxkJEq2",
+      "port":3306,
+      "pool": {
+          "max": 5,
+          "min": 0,
+          "acquire": 30000,
+          "idle": 10000
+        } 
+    },
+   "mongo":{
+      "host": "172.168.0.21",
+      "db_name": "MatchupIt",
+      "user_name": "muitadmin",
+      "password": "Muit@mongo19",
+      "port":27017,
+      "connection_str" : "mongodb://172.168.0.21:27017/MatchupIt"
+    }
+  },
+  "production": {
+    "mysql": {
+      "host": "matchupit-mysql.clh8gudilxes.us-east-1.rds.amazonaws.com",
+      "db_name": "MatchupItNewUi",
+      "user_name": "admin",
+      "password": "NurLmStDZ6RQZkxkJEq2",
+      "port":3306,
+      "pool": {
+          "max": 5,
+          "min": 0,
+          "acquire": 30000,
+          "idle": 10000
+        } 
+    },
+   "mongo":{
+      "host": "172.168.0.9",
+      "db_name": "MatchupItNewUi",
+      "user_name": "muitadmin",
+      "password": "Muit@mongo19",
+      "port":27017,
+      "connection_str" : "mongodb://172.168.0.9:27017/MatchupItNewUi"
+    }
+  }
+}

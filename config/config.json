@@ -1,0 +1,25 @@
+{
+  "development": {
+    "host": "localhost",
+    "database": "matchupit_dev",
+    "username": "root",
+    "dialect": "mysql",
+    "password": "Tejkumar3@",
+    "port": 3306
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "admin",
+    "password": "NurLmStDZ6RQZkxkJEq2",
+    "database": "MatchupItNewUi",
+    "host": "matchupit-mysql.clh8gudilxes.us-east-1.rds.amazonaws.com",
+    "dialect": "mysql",
+    "port": 3306
+  }
+}
