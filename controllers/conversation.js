@@ -9,6 +9,8 @@ const Chat = require('../models/schemas/chat');
 const Conversation = require("../models/schemas/conversation");
 const UserProfile = require('../models/schemas/user_profiles');
 const Corporate = require('../models/corporate')
+const userService = require('../services/user')
+const sendMail = require('../helpers/email/email').sendMail
 
 const createConversation = async (req, res) => {
 
@@ -163,6 +165,40 @@ const addMessage = async (req, res) => {
     const { text, owner, attachments, messageType, timeStamp } = req.body.message;
 
     let conversationExists = await Conversation.findById(conversationId)
+    //let conversationExists11 = await Conversation.find({ $or: [{ "receiver.userId": req.headers.userid }] })
+    let conversationExists11 = await Conversation.find({ $or: [{ "sender.userId": req.headers.userid }, { "receiver.userId": req.headers.userid }] })
+    if (conversationExists11) {
+
+        let conversations11  = JSON.parse(JSON.stringify(conversationExists11));
+        for (let conversation1 of conversations11) {
+        let recieverUserId = conversation1.receiver.userId;
+        let senderUserId = conversation1.sender.userId;
+        let recieverName = conversation1.receiver.username
+        let senderName = conversation1.sender.username
+        let userData = await User.findOne({
+            where: {
+                id: senderUserId
+            },
+            attributes: ["first_name","last_name","email"],
+            raw: true
+        })
+
+    if(userData){
+    let recieverEmailId = userData.email
+    if(recieverEmailId != 'lalitdhingra.home@gmail.com'){
+    //recieverEmailId = 'rajan.bhardwaj@ensignis-digital.com'
+    const emailPayload = {
+        from: 'no-reply@matchupit.com ',
+        to: recieverEmailId,
+        subject: 'Uread Message in matchupIT Messanger',
+        html: `<p>Dear User,</p>
+    <p>You have one pending message from ${recieverName} in MatchupIT.</p>`
+    }
+    await sendMail(emailPayload);
+}
+    }
+       }
+    }
 
     if (conversationExists) {
 

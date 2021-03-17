@@ -113,7 +113,7 @@ async function signup(payload) {
             order_id: orderResponse.id,
             user_id: userId,
             start_date: new Date(),
-            end_date: moment(new Date(), "DD-MM-YYYY").add(10, 'days'),
+            end_date: moment(new Date(), "DD-MM-YYYY").add(6, 'months'),
             is_disabled: false,
             subscription_plan_type: 5
           })
@@ -181,7 +181,7 @@ async function signup(payload) {
           order_id: orderResponse.id,
           user_id: userId,
           start_date: new Date(),
-          end_date: moment(new Date(), "DD-MM-YYYY").add(10, 'days'),
+          end_date: moment(new Date(), "DD-MM-YYYY").add(6, 'months'),
           is_disabled: false,
           subscription_plan_type: 5
         })
