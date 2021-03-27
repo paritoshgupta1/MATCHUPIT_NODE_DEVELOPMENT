@@ -923,7 +923,7 @@ async function forgotPassword(inputEmail, inputOTP, newPassword) {
       return responseObj(false, 400, 'OTP Expired')
     }
     let Model = {}
-    if (OTPDetails.user_id.startsWith('user-')) {
+    if (OTPDetails.user_id.startsWith('user-') || OTPDetails.user_id.startsWith('admin-')) {
       Model = User
     } else if (OTPDetails.user_id.startsWith('c-')) {
       Model = Corporate
@@ -2395,7 +2395,6 @@ function downloadPdf(req, res) {
 
 async function getUserJobDetails(req, res) {
   try {
-
     let { userId } = req.query;
 
     if (!userId) {
