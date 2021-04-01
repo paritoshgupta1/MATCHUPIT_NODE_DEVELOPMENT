@@ -2338,7 +2338,7 @@ function downloadPdf(req, res) {
           "bottom": "0.7in",
           "left": "0.5in"
         },
-        "timeout":60000
+        "timeout":120000
       };
 
       pdf.create(content, options).toFile(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), async function (err, res) {
