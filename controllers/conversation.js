@@ -9,6 +9,8 @@ const Chat = require('../models/schemas/chat');
 const Conversation = require("../models/schemas/conversation");
 const UserProfile = require('../models/schemas/user_profiles');
 const Corporate = require('../models/corporate')
+const userService = require('../services/user')
+const sendMail = require('../helpers/email/email').sendMail
 
 const createConversation = async (req, res) => {
 
@@ -160,10 +162,10 @@ const getConversations = async (req, res) => {
 const addMessage = async (req, res) => {
 
     const { conversationId } = req.body;
-    const { text, owner, attachments, messageType, timeStamp } = req.body.message;
+    const { text, reciever, owner, sender, attachments, messageType, timeStamp } = req.body.message;
 
     let conversationExists = await Conversation.findById(conversationId)
-
+ 
     if (conversationExists) {
 
         let chatObj = {
@@ -179,9 +181,48 @@ const addMessage = async (req, res) => {
         }
 
         let chat = new Chat(chatObj);
-
         let result = await chat.save();
+        let recieverUserId = reciever.userId;
+        let corporateData
+        if (owner.startsWith("c")) {
+            recieverUserId = sender.userId;
+            corporateData = await Corporate.findOne({
+                where: {
+                  id: owner
+                },
+                attributes: ["name", "is_login"]
+            });
+        } 
+        let userData = await User.findOne({
+            where: {
+                id: recieverUserId
+            },
+            attributes: ["first_name","last_name","email", "is_login"],
+            raw: true
+        })
 
+    if(userData){
+       
+    let recieverEmailId = userData.email
+    let senderName
+    if (owner.startsWith("c")) {
+        senderName = corporateData.name
+    }else
+    {
+        senderName = sender.username
+    }
+    
+    if(userData.is_login === 1){
+        const emailPayload = {
+            from: 'no-reply@matchupit.com ',
+            to: recieverEmailId,
+            subject: 'Uread Message in matchupIT Messanger',
+            html: `<p>Dear User,</p>
+        <p>You have pending message from ${senderName} in MatchupIT.</p>`
+        }
+            await sendMail(emailPayload);
+        }
+    }  
         return sendResponse({
             err: false,
             responseCode: 200,

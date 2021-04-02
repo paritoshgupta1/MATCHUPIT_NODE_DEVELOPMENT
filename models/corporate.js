@@ -110,6 +110,9 @@ const Corporate = sequelize.define('corporate', {
   },
   is_active: {
     type: Sequelize.BOOLEAN
+  },
+  is_login: {
+    type: Sequelize.STRING
   }
 }, {
   // options
