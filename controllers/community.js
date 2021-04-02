@@ -88,7 +88,7 @@ const joinCommunity = async (req, res) => {
         userId: req.headers.userid,
       },
     });
-    if (userCount >= 5) {
+    if (userCount >= 10) {
       return sendResponse(
         {
           err: false,
@@ -819,7 +819,7 @@ const getCommunities = async (req, res) => {
             userId: req.headers.userid,
           },
           attributes: ["communityId"],
-          limit: 5
+          limit: 10
         });
 
         if (usercommunities.length > 0) {

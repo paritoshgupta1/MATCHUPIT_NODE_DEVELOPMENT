@@ -32,6 +32,14 @@ const adminLogin = async (req, res) => {
           msg: "User not registered",
         });
       }
+      const adminuserId = user.id;
+      if(user.account_type != 'admin' && !adminuserId.startsWith('admin-'))
+      {
+        return res.status(401).json({
+          err: true,
+          msg: "User is not an administrator",
+        });
+      }
       const userObj = {};
   
       const handlerResponse = await hashHandler;

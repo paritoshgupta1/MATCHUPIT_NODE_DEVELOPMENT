@@ -93,6 +93,9 @@ const User = sequelize.define('user', {
   },
   is_student: {
     type: Sequelize.STRING
+  },
+  is_login: {
+    type: Sequelize.STRING
   }
 }, {
   // options
