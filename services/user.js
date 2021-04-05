@@ -1963,7 +1963,9 @@ async function getUserData(req) {
     else if (account_type === "individual") {
       let responseArray = []
       for (let id of userIds) {
-        responseArray.push(await corporateService.getCorporateProfile(id));
+        //responseArray.push(await corporateService.getCorporateProfile(id));
+        responseArray.push(await getUserProfile(id, "individual", true));
+        
       }
       return responseObj(false, 200, 'Fetched users successfully', { userList: responseArray })
     }
