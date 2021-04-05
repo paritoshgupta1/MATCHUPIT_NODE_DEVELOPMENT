@@ -1964,8 +1964,8 @@ async function getUserData(req) {
       let responseArray = []
       for (let id of userIds) {
         //responseArray.push(await corporateService.getCorporateProfile(id));
-        responseArray.push(await getUserProfile(id, "individual", true));
-        
+        let userResponse = await getUserProfile(id, "individual", true);
+        responseArray.push(userResponse.response);
       }
       return responseObj(false, 200, 'Fetched users successfully', { userList: responseArray })
     }
