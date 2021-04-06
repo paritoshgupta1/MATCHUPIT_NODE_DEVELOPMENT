@@ -2,9 +2,9 @@
   "development": {
     "mysql": {
       "host": "localhost",
-      "db_name": "matchupit_dev",
+      "db_name": "matchupit",
       "user_name": "root",
-      "password": "Tejkumar3@",
+      "password": "ka#036133",
       "port":3306,
       "pool": {
           "max": 5,
@@ -15,11 +15,11 @@
     },
     "mongo":{
       "host": "localhost",
-      "db_name": "matchupit_dev",
+      "db_name": "mongodb",
       "user_name": "",
       "password": "",
       "port":27017,
-      "connection_str" : "mongodb://localhost:27017/matchupit_dev"
+      "connection_str" : "mongodb://localhost:27017/mongodb"
     }
   },
    "production_old": {
