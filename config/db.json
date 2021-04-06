@@ -22,7 +22,7 @@
       "connection_str" : "mongodb://localhost:27017/mongodb"
     }
   },
-   "production_old": {
+   "production": {
     "mysql": {
       "host": "matchupit.c6n0jjqytjrq.us-east-2.rds.amazonaws.com",
       "db_name": "MatchUpIt",
@@ -45,7 +45,7 @@
       "connection_str" : "mongodb://172.168.0.21:27017/MatchupIt"
     }
   },
-  "production": {
+  "production_old": {
     "mysql": {
       "host": "matchupit-mysql.clh8gudilxes.us-east-1.rds.amazonaws.com",
       "db_name": "MatchupItNewUi",
