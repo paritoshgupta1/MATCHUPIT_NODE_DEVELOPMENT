@@ -26,7 +26,7 @@
     "username": "admin",
     "password": "NurLmStDZ6RQZkxkJEq2",
     "database": "MatchUpIt",
-    "host": "matchupit.c6n0jjqytjrq.us-east-2.rds.amazonaws.com",
+    "host": "matchupit-mysql.clh8gudilxes.us-east-1.rds.amazonaws.com",
     "dialect": "mysql",
     "port": 3306
   }
