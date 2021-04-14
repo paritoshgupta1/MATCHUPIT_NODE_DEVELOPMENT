@@ -113,7 +113,7 @@ async function signup(payload) {
             order_id: orderResponse.id,
             user_id: userId,
             start_date: new Date(),
-            end_date: moment(new Date(), "DD-MM-YYYY").add(6, 'months'),
+            end_date: moment(new Date(), "DD-MM-YYYY").add(12, 'months'),
             is_disabled: false,
             subscription_plan_type: 5
           })
@@ -181,7 +181,7 @@ async function signup(payload) {
           order_id: orderResponse.id,
           user_id: userId,
           start_date: new Date(),
-          end_date: moment(new Date(), "DD-MM-YYYY").add(6, 'months'),
+          end_date: moment(new Date(), "DD-MM-YYYY").add(12, 'months'),
           is_disabled: false,
           subscription_plan_type: 5
         })
@@ -1963,7 +1963,9 @@ async function getUserData(req) {
     else if (account_type === "individual") {
       let responseArray = []
       for (let id of userIds) {
-        responseArray.push(await corporateService.getCorporateProfile(id));
+        //responseArray.push(await corporateService.getCorporateProfile(id));
+        let userResponse = await getUserProfile(id, "individual", true);
+        responseArray.push(userResponse.response);
       }
       return responseObj(false, 200, 'Fetched users successfully', { userList: responseArray })
     }
