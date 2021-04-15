@@ -182,7 +182,15 @@ const addMessage = async (req, res) => {
 
         let chat = new Chat(chatObj);
         let result = await chat.save();
-        let recieverUserId = reciever.userId;
+        let recieverUserId = null
+        if(owner === sender.userId)
+        {
+         recieverUserId = reciever.userId;
+        }
+        else if(owner === reciever.userId)
+        {
+            recieverUserId = sender.userId;
+        }
         let corporateData
         if (owner.startsWith("c")) {
             recieverUserId = sender.userId;
@@ -193,6 +201,7 @@ const addMessage = async (req, res) => {
                 attributes: ["name", "is_login"]
             });
         } 
+        if(recieverUserId != null){
         let userData = await User.findOne({
             where: {
                 id: recieverUserId
@@ -207,11 +216,16 @@ const addMessage = async (req, res) => {
     let senderName
     if (owner.startsWith("c")) {
         senderName = corporateData.name
-    }else
-    {
-        senderName = sender.username
+    }else {
+    if(owner === reciever.userId)
+        {
+            senderName = reciever.username;
+        }
+        else if(owner === sender.userId)
+        {
+            senderName = sender.username;
+        }
     }
-    
     if(userData.is_login === 1){
         const emailPayload = {
             from: 'no-reply@matchupit.com ',
@@ -223,6 +237,7 @@ const addMessage = async (req, res) => {
             await sendMail(emailPayload);
         }
     }  
+}
         return sendResponse({
             err: false,
             responseCode: 200,
