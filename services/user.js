@@ -122,7 +122,7 @@ async function signup(payload) {
             to: payload.email,
             subject: 'matchupIT sign up',
             html: `<p>Dear User,</p>
-            <p>You have registered ${payload.email} with MatchupIt as an individual user. Please provide/update your information and explore all the features. Your account will be active for 6 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
+            <p>You have registered ${payload.email} with MatchupIt as an individual user. Please provide/update your information and explore all the features. Your account will be active for 12 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
           }
           await sendMail(emailPayload);
           userObj.token = generateJWT(userObj);
@@ -190,7 +190,7 @@ async function signup(payload) {
           to: payload.email,
           subject: 'matchupIT sign up',
           html: `<p>Dear User,</p>
-          <p>You have registered ${payload.email} with MatchupIt as an individual user. Please provide/update your information and explore all the features. Your account will be active for 6 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
+          <p>You have registered ${payload.email} with MatchupIt as an individual user. Please provide/update your information and explore all the features. Your account will be active for 12 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
         }
         await sendMail(emailPayload);
         userObj.token = generateJWT(userObj)
