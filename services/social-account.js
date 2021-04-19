@@ -74,6 +74,7 @@ async function socialAccountHandler (user) {
       userObj.email_verified = userRec.email_verified
       userObj.account_type = userRec.account_type
       userObj.token = generateJWT(userObj)
+      await User.update({ is_login: 0 }, { where: { id: userRec.id } })
       return responseObj(false, 200, 'Success', userObj)
     } catch (ex) {
         console.log(ex)
