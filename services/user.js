@@ -103,6 +103,8 @@ async function signup(payload) {
 
           await User.update({ payment_status: true, is_active: true }, { where: { id: userId } });
 
+          await User.update({ is_login: 0 }, { where: { id: userId } });
+
           await model.orderhistory.create({
             order_id: orderResponse.id,
             order_status_id: 2,
@@ -170,6 +172,8 @@ async function signup(payload) {
         await model.order.update({ order_number: order_number }, { where: { id: orderResponse.id } });
 
         await User.update({ payment_status: true, is_active: true }, { where: { id: userId } });
+
+        await User.update({ is_login: 0 }, { where: { id: userId } });
 
         await model.orderhistory.create({
           order_id: orderResponse.id,
@@ -248,6 +252,8 @@ async function signup(payload) {
       await model.order.update({ order_number: order_number }, { where: { id: orderResponse.id } });
 
       await Corporate.update({ payment_status: true, is_active: true }, { where: { id: corporateId } });
+
+      await Corporate.update({ is_login: 0 }, { where: { id: corporateId } });
 
       await model.orderhistory.create({
         order_id: orderResponse.id,
