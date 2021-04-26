@@ -230,7 +230,7 @@ const addMessage = async (req, res) => {
         const emailPayload = {
             from: 'no-reply@matchupit.com ',
             to: recieverEmailId,
-            subject: 'Uread Message in matchupIT Messanger',
+            subject: 'Unread Message in matchupIT Messanger',
             html: `<p>Dear User,</p>
         <p>You have pending message from ${senderName} in MatchupIT.</p>`
         }
