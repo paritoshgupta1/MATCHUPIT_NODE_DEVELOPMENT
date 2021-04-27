@@ -89,7 +89,7 @@ const getConversations = async (req, res) => {
         let hasMessages = [];
 
         for (let conversation of conversations) {
-            let message = await Chat.findOne({ conversationId: conversation._id }).sort({ "message.createdOn": -1 }).limit(1);
+            let message = await Chat.findOne({ conversationId: conversation._id }).sort({ "message.timeStamp": -1 }).limit(1);
             if (message) {
                 if (conversation.receiver.userId.startsWith("c")) {
                     let corporateData = await Corporate.findOne({
@@ -143,8 +143,8 @@ const getConversations = async (req, res) => {
         }
 
         let ordered = hasMessages.sort((a, b)=> {
-            let c = new Date(a.message.message.createdOn);
-            let d = new Date(b.message.message.createdOn);
+            let c = new Date(a.message.message.timeStamp);
+            let d = new Date(b.message.message.timeStamp);
             return d-c;
         });
 
@@ -182,7 +182,15 @@ const addMessage = async (req, res) => {
 
         let chat = new Chat(chatObj);
         let result = await chat.save();
-        let recieverUserId = reciever.userId;
+        let recieverUserId = null
+        if(owner === sender.userId)
+        {
+         recieverUserId = reciever.userId;
+        }
+        else if(owner === reciever.userId)
+        {
+            recieverUserId = sender.userId;
+        }
         let corporateData
         if (owner.startsWith("c")) {
             recieverUserId = sender.userId;
@@ -193,6 +201,7 @@ const addMessage = async (req, res) => {
                 attributes: ["name", "is_login"]
             });
         } 
+        if(recieverUserId != null){
         let userData = await User.findOne({
             where: {
                 id: recieverUserId
@@ -207,22 +216,28 @@ const addMessage = async (req, res) => {
     let senderName
     if (owner.startsWith("c")) {
         senderName = corporateData.name
-    }else
-    {
-        senderName = sender.username
+    }else {
+    if(owner === reciever.userId)
+        {
+            senderName = reciever.username;
+        }
+        else if(owner === sender.userId)
+        {
+            senderName = sender.username;
+        }
     }
-    
     if(userData.is_login === 1){
         const emailPayload = {
             from: 'no-reply@matchupit.com ',
             to: recieverEmailId,
-            subject: 'Uread Message in matchupIT Messanger',
+            subject: 'Unread Message in matchupIT Messanger',
             html: `<p>Dear User,</p>
         <p>You have pending message from ${senderName} in MatchupIT.</p>`
         }
             await sendMail(emailPayload);
         }
     }  
+}
         return sendResponse({
             err: false,
             responseCode: 200,
@@ -252,8 +267,8 @@ const getMessages = async (req, res) => {
     const page1 = Number(page) || 1;
     const offset = (page1 - 1) * limit1;
 
-    let messages = await Chat.find({ conversationId }).limit(Number(limit1)).skip(offset).sort({ "message.createdOn": -1 });
-    let reverse = _.sortBy(messages, ["message.createdOn"], ["desc"]);
+    let messages = await Chat.find({ conversationId }).limit(Number(limit1)).skip(offset).sort({ "message.timeStamp": -1 });
+    let reverse = _.sortBy(messages, ["message.timeStamp"], ["desc"]);
     let groupedData = groupData(JSON.parse(JSON.stringify(reverse)));
 
 
@@ -283,7 +298,7 @@ const getMessages = async (req, res) => {
 const groupData = (array)=>  {
     let finalObj = {};
     array.forEach((data) => {
-    const date = data.message.createdOn.split("T")[0];
+    const date = data.message.timeStamp.split("T")[0];
     if (finalObj[date]) {
       finalObj[date].push(data);
     } else {
