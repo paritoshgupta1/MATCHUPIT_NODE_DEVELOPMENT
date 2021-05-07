@@ -2400,7 +2400,28 @@ function downloadPdf(req, res) {
   }
 }
 
+async function sendInviteMail(req, res) {
+  try {
 
+    let reciever_email = req.body.reciever_email;
+    let reciever_full_name = req.body.reciever_full_name;
+    let sender_full_name = req.body.sender_full_name;
+   
+    const emailPayload = {
+      from: 'no-reply@matchupit.com ',
+      to: reciever_email,
+      subject: 'User Invitation',
+      html: `<p>Hi ${reciever_full_name},</p>
+      <p style="display:inline;">Invite from ${sender_full_name}  https://stage.matchupit.com/.</p>
+      <p> Thanks & Regards,</p>
+      <p> MatchupIT</p> `
+    }
+    await sendMail(emailPayload)
+  } catch (ex) {
+    console.log('Error', ex)
+    return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
+  }
+}
 
 async function getUserJobDetails(req, res) {
   try {
@@ -2556,5 +2577,6 @@ module.exports = {
   getUserJobDetails,
   addUserJobDetails,
   updateUserJobDetails,
-  getJobTypes
+  getJobTypes,
+  sendInviteMail
 }
