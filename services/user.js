@@ -2412,9 +2412,10 @@ async function sendInviteMail(req, res) {
       to: reciever_email,
       subject: 'User Invitation',
       html: `<p>Hi ${reciever_full_name},</p>
-      <p style="display:inline;">Invite from ${sender_full_name}  https://stage.matchupit.com/.</p>
-      <p> Thanks & Regards,</p>
-      <p> MatchupIT</p> `
+      <p style="display:inline;">${sender_full_name} invites you to join the unique platform MatchupIT.</p>
+      <p>Click here https://stage.matchupit.com/ and signup  to be part of the technology community.</p>
+      <p> Best,</p>
+      <p>${sender_full_name}</p> `
     }
     await sendMail(emailPayload)
   } catch (ex) {
