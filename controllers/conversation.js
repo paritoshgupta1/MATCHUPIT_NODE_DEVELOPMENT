@@ -77,7 +77,41 @@ const createConversation = async (req, res) => {
 
 };
 
+const getUnreadMessages = async (req, res) => {
+    let unreadMessages =  0;
+    let conversationExists = await Conversation.find({ $or: [{ "sender.userId": req.headers.userid }, { "receiver.userId": req.headers.userid }] })
 
+    if (conversationExists) {
+
+        let conversations  = JSON.parse(JSON.stringify(conversationExists));
+        
+        for (let conversation of conversations) {
+            let readmessage = await Chat.count({ conversationId: conversation._id, rstatus: "nread" })
+            unreadMessages += readmessage;
+        }
+    }
+
+    if (unreadMessages > 0) {
+
+        return sendResponse({
+            err: false,
+            responseCode: 200,
+            unreadMessages: unreadMessages
+        },
+            res
+        );
+    }
+    else {
+        return sendResponse({
+            err: false,
+            responseCode: 200,
+            unreadMessages: 0
+        },
+            res
+        );
+
+    }
+}
 
 const getConversations = async (req, res) => {
 
@@ -90,6 +124,7 @@ const getConversations = async (req, res) => {
 
         for (let conversation of conversations) {
             let message = await Chat.findOne({ conversationId: conversation._id }).sort({ "message.timeStamp": -1 }).limit(1);
+            
             if (message) {
                 if (conversation.receiver.userId.startsWith("c")) {
                     let corporateData = await Corporate.findOne({
@@ -169,6 +204,7 @@ const addMessage = async (req, res) => {
     if (conversationExists) {
 
         let chatObj = {
+            rstatus: "nread",
             conversationId,
             message: {
                 createdOn: new Date(),
@@ -269,7 +305,11 @@ const getMessages = async (req, res) => {
 
     let messages = await Chat.find({ conversationId }).limit(Number(limit1)).skip(offset).sort({ "message.timeStamp": -1 });
     let reverse = _.sortBy(messages, ["message.timeStamp"], ["desc"]);
+    //let countmessages = _.countBy(messages, "rstatus");
     let groupedData = groupData(JSON.parse(JSON.stringify(reverse)));
+    await Chat.updateMany({ conversationId :conversationId,rstatus: "nread" },{
+        $set: { rstatus: "read" }
+    })
 
 
     if (messages) {
@@ -313,5 +353,6 @@ module.exports = {
     createConversation,
     getConversations,
     addMessage,
-    getMessages
+    getMessages,
+    getUnreadMessages
 };
