@@ -80,13 +80,13 @@ const createConversation = async (req, res) => {
 const getUnreadMessages = async (req, res) => {
     let unreadMessages =  0;
     let conversationExists = await Conversation.find({ $or: [{ "sender.userId": req.headers.userid }, { "receiver.userId": req.headers.userid }] })
-
+    let getOwner = req.headers.userid
     if (conversationExists) {
 
         let conversations  = JSON.parse(JSON.stringify(conversationExists));
         
         for (let conversation of conversations) {
-            let readmessage = await Chat.count({ conversationId: conversation._id, rstatus: "nread" })
+            let readmessage = await Chat.count({ conversationId: conversation._id, recieverUserId: getOwner, rstatus: "nread" })
             unreadMessages += readmessage;
         }
     }
@@ -200,11 +200,21 @@ const addMessage = async (req, res) => {
     const { text, reciever, owner, sender, attachments, messageType, timeStamp } = req.body.message;
 
     let conversationExists = await Conversation.findById(conversationId)
+    let recieverUserId = null
+    if(owner === sender.userId)
+        {
+         recieverUserId = reciever.userId;
+        }
+        else if(owner === reciever.userId)
+        {
+            recieverUserId = sender.userId;
+        }
  
     if (conversationExists) {
 
         let chatObj = {
             rstatus: "nread",
+            recieverUserId,
             conversationId,
             message: {
                 createdOn: new Date(),
@@ -218,15 +228,8 @@ const addMessage = async (req, res) => {
 
         let chat = new Chat(chatObj);
         let result = await chat.save();
-        let recieverUserId = null
-        if(owner === sender.userId)
-        {
-         recieverUserId = reciever.userId;
-        }
-        else if(owner === reciever.userId)
-        {
-            recieverUserId = sender.userId;
-        }
+        
+        
         let corporateData
         if (owner.startsWith("c")) {
             recieverUserId = sender.userId;
@@ -306,8 +309,9 @@ const getMessages = async (req, res) => {
     let messages = await Chat.find({ conversationId }).limit(Number(limit1)).skip(offset).sort({ "message.timeStamp": -1 });
     let reverse = _.sortBy(messages, ["message.timeStamp"], ["desc"]);
     //let countmessages = _.countBy(messages, "rstatus");
+    let getOwner = req.headers.userid
     let groupedData = groupData(JSON.parse(JSON.stringify(reverse)));
-    await Chat.updateMany({ conversationId :conversationId,rstatus: "nread" },{
+    await Chat.updateMany({ conversationId :conversationId, recieverUserId: getOwner,rstatus: "nread" },{
         $set: { rstatus: "read" }
     })
 
