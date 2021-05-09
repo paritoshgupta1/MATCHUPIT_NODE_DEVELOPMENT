@@ -1,10 +1,10 @@
 {
   "development": {
     "host": "localhost",
-    "database": "matchupit",
+    "database": "matchupit_dev",
     "username": "root",
     "dialect": "mysql",
-    "password": "ka#036133",
+    "password": "Tejkumar3@",
     "port": 3306
   },
   "test": {
