@@ -79,16 +79,34 @@ const createConversation = async (req, res) => {
 
 const getUnreadMessages = async (req, res) => {
     let unreadMessages =  0;
+    let conversation1 = 0;
     let conversationExists = await Conversation.find({ $or: [{ "sender.userId": req.headers.userid }, { "receiver.userId": req.headers.userid }] })
     let getOwner = req.headers.userid
     if (conversationExists) {
-
+        var arr = [];
         let conversations  = JSON.parse(JSON.stringify(conversationExists));
         
         for (let conversation of conversations) {
+            
             let readmessage = await Chat.count({ conversationId: conversation._id, recieverUserId: getOwner, rstatus: "nread" })
             unreadMessages += readmessage;
+            if(readmessage >0){
+                var obj = new Object();
+                obj.conversation1 = conversation._id;
+                obj.unreadMessages = readmessage
+                arr.push(obj);
         }
+            
+        }
+        var obj1 = new Object();
+        obj1.totalUnreadMessages = unreadMessages;
+        arr.push(obj1);
+    }
+
+    if (unreadMessages === 0) {
+        var obj1 = new Object();
+        obj1.totalUnreadMessages = unreadMessages;
+        arr.push(obj1);
     }
 
     if (unreadMessages > 0) {
@@ -96,7 +114,7 @@ const getUnreadMessages = async (req, res) => {
         return sendResponse({
             err: false,
             responseCode: 200,
-            unreadMessages: unreadMessages
+            arr
         },
             res
         );
@@ -105,7 +123,7 @@ const getUnreadMessages = async (req, res) => {
         return sendResponse({
             err: false,
             responseCode: 200,
-            unreadMessages: 0
+            arr
         },
             res
         );
