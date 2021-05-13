@@ -795,6 +795,24 @@ const updateUserJobDetails = async (req, res) => {
   }
 };
 
+const sendInviteMail = async(req, res) => {
+  try {
+    const serviceResponse = await userService.sendInviteMail(req, res)
+    return sendResponse(serviceResponse, res)
+  } catch (ex) {
+    console.log(ex);
+    return sendResponse(
+      {
+        err: true,
+        responseCode: 500,
+        msg: "Error in Sending mail",
+        err_stack: ex.stack,
+      },
+      res
+    );
+  }
+
+};
 
 const getJobTypes = async (req, res) => {
   try {
@@ -844,5 +862,6 @@ module.exports = {
   getUserJobDetails,
   addUserJobDetails,
   updateUserJobDetails,
-  getJobTypes
+  getJobTypes,
+  sendInviteMail
 }
