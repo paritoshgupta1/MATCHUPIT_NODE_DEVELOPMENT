@@ -297,15 +297,11 @@ async function login(payload) {
       
       if(payload.email.account_type === 'individual')
       {
-        let userObject = {}
         await User.update({ is_login: 1 }, { where: { id: payload.email.id } })
-        userObject = generateJWT({is_login: 1, id: payload.email.id})
-        return responseObj(false, 200, 'Login Success', userObject)
+        return responseObj(false, 200, 'Login Success')
       } else if( payload.email.account_type === 'corporate' ) {
-        let userObject = {}
         await Corporate.update({ is_login: 1 }, { where: { id: payload.email.id } })
-        userObject = generateJWT({is_login: 1, id: payload.email.id})
-        return responseObj(false, 200, 'Login Success', userObject)
+        return responseObj(false, 200, 'Login Success')
       }
 
     }else {
