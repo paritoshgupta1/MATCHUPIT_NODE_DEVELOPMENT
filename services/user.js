@@ -2410,18 +2410,20 @@ async function sendInviteMail(req, res) {
     const emailPayload = {
       from: 'no-reply@matchupit.com ',
       to: reciever_email,
-      subject: 'User Invitation',
+      subject: `${sender_full_name} is inviting you to join upcoming platform MatchupIT`,
       html: `<p>Hi ${reciever_full_name},</p>
       <p style="display:inline;">${sender_full_name} invites you to join the unique platform MatchupIT.</p>
       <p>Click here https://matchupit.com/ and signup  to be part of the technology community.</p>
       <p> Best,</p>
       <p>${sender_full_name}</p> `
-    }
+    } 
     await sendMail(emailPayload)
+    return responseObj(false, 200, 'mail sent successfully.')
   } catch (ex) {
     console.log('Error', ex)
     return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
   }
+
 }
 
 async function getUserJobDetails(req, res) {
