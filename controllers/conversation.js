@@ -77,7 +77,59 @@ const createConversation = async (req, res) => {
 
 };
 
+const getUnreadMessages = async (req, res) => {
+    let unreadMessages =  0;
+    let conversation1 = 0;
+    let conversationExists = await Conversation.find({ $or: [{ "sender.userId": req.headers.userid }, { "receiver.userId": req.headers.userid }] })
+    let getOwner = req.headers.userid
+    if (conversationExists) {
+        var arr = [];
+        let conversations  = JSON.parse(JSON.stringify(conversationExists));
+        
+        for (let conversation of conversations) {
+            
+            let readmessage = await Chat.count({ conversationId: conversation._id, recieverUserId: getOwner, rstatus: "nread" })
+            unreadMessages += readmessage;
+            if(readmessage >0){
+                var obj = new Object();
+                obj.conversation1 = conversation._id;
+                obj.unreadMessages = readmessage
+                arr.push(obj);
+        }
+            
+        }
+        var obj1 = new Object();
+        obj1.totalUnreadMessages = unreadMessages;
+        arr.push(obj1);
+    }
 
+    if (unreadMessages === 0) {
+        var obj1 = new Object();
+        obj1.totalUnreadMessages = unreadMessages;
+        arr.push(obj1);
+    }
+
+    if (unreadMessages > 0) {
+
+        return sendResponse({
+            err: false,
+            responseCode: 200,
+            arr
+        },
+            res
+        );
+    }
+    else {
+        return sendResponse({
+            err: false,
+            responseCode: 200,
+            arr
+        },
+            res
+        );
+
+    }
+}
 
 const getConversations = async (req, res) => {
 
@@ -90,6 +142,7 @@ const getConversations = async (req, res) => {
 
         for (let conversation of conversations) {
             let message = await Chat.findOne({ conversationId: conversation._id }).sort({ "message.timeStamp": -1 }).limit(1);
+            
             if (message) {
                 if (conversation.receiver.userId.startsWith("c")) {
                     let corporateData = await Corporate.findOne({
@@ -165,10 +218,21 @@ const addMessage = async (req, res) => {
     const { text, reciever, owner, sender, attachments, messageType, timeStamp } = req.body.message;
 
     let conversationExists = await Conversation.findById(conversationId)
+    let recieverUserId = null
+    if(owner === sender.userId)
+        {
+         recieverUserId = reciever.userId;
+        }
+        else if(owner === reciever.userId)
+        {
+            recieverUserId = sender.userId;
+        }
  
     if (conversationExists) {
 
         let chatObj = {
+            rstatus: "nread",
+            recieverUserId,
             conversationId,
             message: {
                 createdOn: new Date(),
@@ -182,15 +246,8 @@ const addMessage = async (req, res) => {
 
         let chat = new Chat(chatObj);
         let result = await chat.save();
-        let recieverUserId = null
-        if(owner === sender.userId)
-        {
-         recieverUserId = reciever.userId;
-        }
-        else if(owner === reciever.userId)
-        {
-            recieverUserId = sender.userId;
-        }
+        
+        
         let corporateData
         if (owner.startsWith("c")) {
             recieverUserId = sender.userId;
@@ -269,7 +326,12 @@ const getMessages = async (req, res) => {
 
     let messages = await Chat.find({ conversationId }).limit(Number(limit1)).skip(offset).sort({ "message.timeStamp": -1 });
     let reverse = _.sortBy(messages, ["message.timeStamp"], ["desc"]);
+    //let countmessages = _.countBy(messages, "rstatus");
+    let getOwner = req.headers.userid
     let groupedData = groupData(JSON.parse(JSON.stringify(reverse)));
+    await Chat.updateMany({ conversationId :conversationId, recieverUserId: getOwner,rstatus: "nread" },{
+        $set: { rstatus: "read" }
+    })
 
 
     if (messages) {
@@ -313,5 +375,6 @@ module.exports = {
     createConversation,
     getConversations,
     addMessage,
-    getMessages
+    getMessages,
+    getUnreadMessages
 };

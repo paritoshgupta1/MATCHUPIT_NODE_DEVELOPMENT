@@ -65,5 +65,6 @@ router.put('/updateUserJobDetails', authMiddleware.handleToken, userCtrl.updateU
 
 
 router.get('/getJobTypes', authMiddleware.handleToken, userCtrl.getJobTypes);
+router.post('/send-invite', authMiddleware.handleToken, userCtrl.sendInviteMail);
 
 module.exports = router

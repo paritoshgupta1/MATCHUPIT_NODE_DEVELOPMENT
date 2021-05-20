@@ -511,7 +511,7 @@ const tagUser = async (req, res) => {
     
     async function getRecentProfile(searchReq) {
     try {
-        let userId = 'user-2998f4f0-8915-11ea-80f7-b961c464ffcf'
+        let userId = searchReq.headers.userid
         let recents = await models.ProfileVisitscorp.findAll({
             attributes: ['corpId'],
             where: {userId: userId},

@@ -30,7 +30,7 @@ async function sendMail (payload) {
     from: payload.from, // sender address
     to: payload.to, // list of receivers
     subject: payload.subject, // Subject line
-    bcc: ['anjireddy@codeinks.com', 'jayanth.prabhu@inkqubits.com'],
+    bcc: ['matchupit@gmail.com'],
     // text: 'Hello world?', // plain text body
     html: payload.html // html body
   })

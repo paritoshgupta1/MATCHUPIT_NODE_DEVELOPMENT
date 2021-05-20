@@ -14,4 +14,6 @@ router.post('/add-message', authMiddleware.handleToken, conversationCtrl.addMess
 
 router.get('/get-messages', authMiddleware.handleToken, conversationCtrl.getMessages);
 
+router.get('/get-unreadMessages', authMiddleware.handleToken, conversationCtrl.getUnreadMessages);
+
 module.exports = router;
