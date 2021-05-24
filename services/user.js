@@ -2454,7 +2454,7 @@ async function sendInviteMail(req, res) {
           html: `<p>Hi Admin,</p>
           <p style="display:inline;"><span style="font-weight:bold; font-size:24px"><u>function : ${functions} -  Role : ${roles}</u></span>, has been added by user.</p>
           <p> Best,</p>
-          <p>MatchupIT</p> `
+          <p>MatchupIT.</p> `
         } 
         await sendMail(emailPayload)
         return responseObj(false, 200, 'mail sent successfully.')
