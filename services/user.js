@@ -2443,7 +2443,7 @@ async function sendInviteMail(req, res) {
             subject: `${sender_full_name} is inviting you to join upcoming platform MatchupIT`,
             html: `<p>Hi ${reciever_full_name},</p>
             <p style="display:inline;">${sender_full_name} invites you to join the unique platform MatchupIT.</p>
-            <p>Click here https://stage.matchupit.com/ and signup  to be part of the technology community.</p>
+            <p>Click here https://matchupit.com/ and signup  to be part of the technology community.</p>
             <p> Best,</p>
             <p>${sender_full_name}</p> `
           } 
