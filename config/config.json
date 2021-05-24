@@ -14,11 +14,19 @@
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
-  "production": {
+  "production_old": {
     "username": "admin",
     "password": "NurLmStDZ6RQZkxkJEq2",
     "database": "MatchupItNewUi",
     "host": "matchupit-mysql.clh8gudilxes.us-east-1.rds.amazonaws.com",
+    "dialect": "mysql",
+    "port": 3306
+  },
+  "production": {
+    "username": "admin",
+    "password": "NurLmStDZ6RQZkxkJEq2",
+    "database": "MatchUpIt",
+    "host": "matchupit-mysql-prod.clh8gudilxes.us-east-1.rds.amazonaws.com",
     "dialect": "mysql",
     "port": 3306
   }
