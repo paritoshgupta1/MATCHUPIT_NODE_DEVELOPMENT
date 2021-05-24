@@ -2401,7 +2401,6 @@ function downloadPdf(req, res) {
 }
 
 async function sendInviteMail(req, res) {
-  
 
     if(req.body.type === 'newPskills' || req.body.type === 'newOskills')
     {
@@ -2429,7 +2428,7 @@ async function sendInviteMail(req, res) {
         return responseObj(false, 200, 'mail sent successfully.')
     } catch (ex) {
       console.log('Error', ex)
-    return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
+      return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
      }
     }
     else {

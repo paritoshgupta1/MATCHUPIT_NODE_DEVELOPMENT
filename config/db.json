@@ -22,9 +22,9 @@
       "connection_str" : "mongodb://localhost:27017/mongodb"
     }
   },
-   "production_old": {
+   "production": {
     "mysql": {
-      "host": "matchupit.c6n0jjqytjrq.us-east-2.rds.amazonaws.com",
+      "host": "matchupit-mysql-prod.clh8gudilxes.us-east-1.rds.amazonaws.com",
       "db_name": "MatchUpIt",
       "user_name": "admin",
       "password": "NurLmStDZ6RQZkxkJEq2",
@@ -37,15 +37,16 @@
         } 
     },
    "mongo":{
-      "host": "172.168.0.21",
+      "host": "10.0.0.31",
       "db_name": "MatchupIt",
       "user_name": "muitadmin",
       "password": "Muit@mongo19",
       "port":27017,
-      "connection_str" : "mongodb://172.168.0.21:27017/MatchupIt"
+      "connection_str" : "mongodb://10.0.0.31:27017/MatchupIt"
     }
-  },
-  "production": {
+  }
+,
+  "production_old": {
     "mysql": {
       "host": "matchupit-mysql.clh8gudilxes.us-east-1.rds.amazonaws.com",
       "db_name": "MatchupItNewUi",
