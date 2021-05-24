@@ -2401,28 +2401,60 @@ function downloadPdf(req, res) {
 }
 
 async function sendInviteMail(req, res) {
-  try {
 
-    let reciever_email = req.body.reciever_email;
-    let reciever_full_name = req.body.reciever_full_name;
-    let sender_full_name = req.body.sender_full_name;
+    if(req.body.type === 'newPskills' || req.body.type === 'newOskills')
+    {
+      try {
+        let skill = req.body.skill;
+        let adminReciver = 'matchupit@gmail.com'
+        let newPrimarySkill
+        if(req.body.type === 'newPskills'){
+           newPrimarySkill = 'New Primary skill added by user'
+        }
+        if(req.body.type === 'newOskills'){
+           newPrimarySkill = 'New skill is added by user'
+        }
+ 
+        const emailPayload = {
+          from: 'no-reply@matchupit.com ',
+          to: adminReciver,
+          subject: `${newPrimarySkill}.`,
+          html: `<p>Hi Admin,</p>
+          <p style="display:inline;"><span style="font-weight:bold; font-size:24px"><u>${skill}</u></span>, has been added by user.</p>
+          <p> Best,</p>
+          <p>MatchupIT</p> `
+        } 
+        await sendMail(emailPayload)
+        return responseObj(false, 200, 'mail sent successfully.')
+    } catch (ex) {
+      console.log('Error', ex)
+      return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
+     }
+    }
+    else {
+      try {
+          let reciever_email = req.body.reciever_email;
+          let reciever_full_name = req.body.reciever_full_name;
+          let sender_full_name = req.body.sender_full_name;
    
-    const emailPayload = {
-      from: 'no-reply@matchupit.com ',
-      to: reciever_email,
-      subject: `${sender_full_name} is inviting you to join upcoming platform MatchupIT`,
-      html: `<p>Hi ${reciever_full_name},</p>
-      <p style="display:inline;">${sender_full_name} invites you to join the unique platform MatchupIT.</p>
-      <p>Click here https://matchupit.com/ and signup  to be part of the technology community.</p>
-      <p> Best,</p>
-      <p>${sender_full_name}</p> `
-    } 
-    await sendMail(emailPayload)
-    return responseObj(false, 200, 'mail sent successfully.')
-  } catch (ex) {
-    console.log('Error', ex)
-    return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
-  }
+          const emailPayload = {
+            from: 'no-reply@matchupit.com ',
+            to: reciever_email,
+            subject: `${sender_full_name} is inviting you to join upcoming platform MatchupIT`,
+            html: `<p>Hi ${reciever_full_name},</p>
+            <p style="display:inline;">${sender_full_name} invites you to join the unique platform MatchupIT.</p>
+            <p>Click here https://stage.matchupit.com/ and signup  to be part of the technology community.</p>
+            <p> Best,</p>
+            <p>${sender_full_name}</p> `
+          } 
+          await sendMail(emailPayload)
+          return responseObj(false, 200, 'mail sent successfully.')
+      } catch (ex) {
+        console.log('Error', ex)
+      return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
+       }
+
+}
 
 }
 
