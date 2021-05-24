@@ -2403,18 +2403,21 @@ function downloadPdf(req, res) {
 async function sendInviteMail(req, res) {
   
 
-    if(req.body.type === 'newPskills' || req.body.type === 'newOskills')
+    if(req.body.type === 'newPskills' || req.body.type === 'newOskills' || req.body.type === 'newIndustry')
     {
       try {
         let skill = req.body.skill;
         let adminReciver = 'matchupit@gmail.com'
         let newPrimarySkill
         if(req.body.type === 'newPskills'){
-           newPrimarySkill = 'New Primary skill added by user'
+           newPrimarySkill = 'New Primary skill has been added by user'
         }
         if(req.body.type === 'newOskills'){
-           newPrimarySkill = 'New skill is added by user'
+           newPrimarySkill = 'New skill has been added by user'
         }
+        if(req.body.type === 'newIndustry'){
+          newPrimarySkill = 'New Industry has been added by user'
+       }
  
         const emailPayload = {
           from: 'no-reply@matchupit.com ',
@@ -2422,6 +2425,35 @@ async function sendInviteMail(req, res) {
           subject: `${newPrimarySkill}.`,
           html: `<p>Hi Admin,</p>
           <p style="display:inline;"><span style="font-weight:bold; font-size:24px"><u>${skill}</u></span>, has been added by user.</p>
+          <p> Best,</p>
+          <p>MatchupIT</p> `
+        } 
+        await sendMail(emailPayload)
+        return responseObj(false, 200, 'mail sent successfully.')
+    } catch (ex) {
+      console.log('Error', ex)
+    return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
+     }
+    }
+    else if(req.body.type === 'newRole')
+    {
+      try {
+        let functions;
+        let roles;
+        let adminReciver = 'matchupit@gmail.com'
+        let functionRole
+        if(req.body.type === 'newRole'){
+          functions = req.body.function;
+          roles = req.body.role;
+          functionRole = 'New role has been added by user'
+        }
+ 
+        const emailPayload = {
+          from: 'no-reply@matchupit.com ',
+          to: adminReciver,
+          subject: `${functionRole}.`,
+          html: `<p>Hi Admin,</p>
+          <p style="display:inline;"><span style="font-weight:bold; font-size:24px"><u>function : ${functions} -  Role : ${roles}</u></span>, has been added by user.</p>
           <p> Best,</p>
           <p>MatchupIT</p> `
         } 
