@@ -1,4 +1,5 @@
 const moment = require('moment')
+const htmlDocx = require('html-docx-js');
 const _ = require('lodash')
 const User = require('../models/user')
 const Corporate = require('../models/corporate')
@@ -2317,28 +2318,10 @@ async function checkCollectionExists(collectionName) {
 function downloadPdf(req, res) {
   try {
 
-    let { content } = req.body;
-
-
-
-    // let config = {
-    //   url: 'https://docraptor.com/docs',
-    //   encoding: null, //IMPORTANT! This produces a binary body response instead of text
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   json: {
-    //     user_credentials: "eghWcdhswwu50ZGCLmHc",
-    //     doc: {
-    //       document_content: content,
-    //       type: "pdf",
-    //       test: false,
-    //     }
-    //   }
-    // };
+    let { content, type, name } = req.body.payload;
 
     return new Promise((resolve, reject) => {
-
+      if(type === 'pdf'){
       var options = {
         format: 'A4', "border": {
           "top": "0.7in",            // default is 0, units: mm, cm, in, px
@@ -2356,7 +2339,7 @@ function downloadPdf(req, res) {
         }
         else {
 
-          let data = await uploadToS3(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), req.tokenUser.data.id);
+          let data = await uploadToS3(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), req.tokenUser.data.id, type, name);
 
           fs.unlink(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), function (err) {
             if (err) {
@@ -2369,24 +2352,50 @@ function downloadPdf(req, res) {
           });
         }
       });
+      }
+      else if(type === 'docx'){
 
+        let config = {
+          url: 'https://docraptor.com/docs',
+          encoding: null, //IMPORTANT! This produces a binary body response instead of text
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          json: {
+            user_credentials: "eghWcdhswwu50ZGCLmHc",
+            doc: {
+              document_content: content,
+              type: "docx",
+              test: false,
+            }
+          }
+        };
+      
+      var docx = htmlDocx.asBlob(content);
+      var pathtosave = path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.docx`)
+      request.post(config, function (err, res, body) {
+        fs.writeFile(pathtosave, docx, "binary", async function (err) {
+          if (err) {
+            reject(err);
+              console.log(err);
+          }
+          else {
 
-      // request.post(config, function (err, response, body) {
-      //   fs.writeFile(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), body, "binary", async function (writeErr) {
-      //     if (err) {
+            let data = await uploadToS3(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.docx`), req.tokenUser.data.id, type, name);
 
-      //     }
-      //     else {
-
-      //       let data = await uploadToS3(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), req.tokenUser.data.id);
-
-      //       fs.unlink(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), function (err) {
-      //         if (err) return console.log(err);
-      //         res(data.Location);
-      //       });
-      //     }
-      //   });
-      // });
+            fs.unlink(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.docx`), function (err) {
+              if (err) {
+                reject(err);
+                console.log(err);
+              }
+              else {
+                resolve(data.Location);
+              }
+            });
+          }
+        });
+      });
+    }
     }).then((res) => {
       return responseObj(false, 200, "File Uploaded", res)
     }).catch((ex) => {
@@ -2401,7 +2410,6 @@ function downloadPdf(req, res) {
 }
 
 async function sendInviteMail(req, res) {
-  
 
     if(req.body.type === 'newPskills' || req.body.type === 'newOskills' || req.body.type === 'newIndustry')
     {
@@ -2432,7 +2440,7 @@ async function sendInviteMail(req, res) {
         return responseObj(false, 200, 'mail sent successfully.')
     } catch (ex) {
       console.log('Error', ex)
-    return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
+      return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
      }
     }
     else if(req.body.type === 'newRole')
@@ -2591,7 +2599,7 @@ async function getJobTypes(req, res) {
 }
 
 
-function uploadToS3(fileName, userId) {
+function uploadToS3(fileName, userId, type, name) {
   const s3 = new AWS.S3({
     accessKeyId: Config.S3AccessKeyID,
     secretAccessKey: Config.S3SecretAccessKey
@@ -2601,7 +2609,7 @@ function uploadToS3(fileName, userId) {
   const params = {
     Bucket: Config.bucketName,
     ACL: Config.acl,
-    Key: `${userId}/${new Date().getTime()}.pdf`,
+    Key: `${userId}/${new Date().getTime()}/${name}.${type}`,
     Body: readStream
   };
 
