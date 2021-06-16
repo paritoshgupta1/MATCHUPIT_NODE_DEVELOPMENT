@@ -1310,12 +1310,14 @@ async function searchUsers(searchReq, res, forMap) {
   try {
     // const searchText = (searchParams.searchText && searchParams.searchText.split(' ').join('%')) || ''
     const searchText = (searchParams.searchText && searchParams.searchText.split(' ')) || ''
+   const zipcode = searchParams.zipcode
     const pageNo = searchParams.pageNo || 1
     const limit = (forMap) ? 10000 : 10;
     const offset = (forMap) ? 0 : (pageNo - 1) * limit
     let sqlResults = []
     let initialFilter = []
     let finalFilter = []
+    let mongoResults = []
     let sqlQuery
     let mongoProjection, mongoQuery
     if (searchText && searchParams.same) {
@@ -1430,28 +1432,48 @@ async function searchUsers(searchReq, res, forMap) {
                     }
                   })
                 })
-                }
-                else{
-                  initialFilter = sqlResults
-                }
-                console.log(initialFilter);
-                console.log(finalFilter)
-                if(finalFilter.length>0){
-                  sqlResults = finalFilter
+              }
+              else{
+                initialFilter = sqlResults
+              }
+              console.log(initialFilter);
+              console.log(finalFilter)
+              if(finalFilter.length>0){
+                sqlResults = finalFilter
+              }else{
+                if(searchText.length>1){
+                  sqlResults = []
                 }else{
-                  if(searchText.length>1){
-                    sqlResults = []
-                  }else{
-                    sqlResults = initialFilter
-                  }
+                  sqlResults = initialFilter
                 }
+              }
             } else {
               sqlResults = []
             }
             queryArray = []
           }
-          mongoQuery = { $text: { $search: searchParams.searchText } }
-          mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
+          if(sqlResults.length){
+            mongoQuery = {}
+            mongoProjection = {}
+          }else{
+            mongoQuery = { $text: { $search: searchParams.searchText } }
+            mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
+            if (!searchParams.name && searchParams.function) {
+              mongoQuery['work_experience.jobTitles.0'] = searchParams.function
+            }
+
+            if (!searchParams.name && searchParams.role) {
+              mongoQuery['work_experience.role.0'] = searchParams.role // filtering based on latest role(jobTitle)
+            }
+
+            // const mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
+            if (searchParams.name) {
+              mongoResults = [];
+            }
+            else {
+              mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
+            }
+          }
         }
       } else {
         sqlQuery = {}
@@ -1483,23 +1505,22 @@ async function searchUsers(searchReq, res, forMap) {
         }
       }
 
-      if (!searchParams.name && searchParams.function) {
-        mongoQuery['work_experience.jobTitles.0'] = searchParams.function
-      }
+      // if (!searchParams.name && searchParams.function) {
+      //   mongoQuery['work_experience.jobTitles.0'] = searchParams.function
+      // }
 
-      if (!searchParams.name && searchParams.role) {
-        mongoQuery['work_experience.role.0'] = searchParams.role // filtering based on latest role(jobTitle)
-      }
+      // if (!searchParams.name && searchParams.role) {
+      //   mongoQuery['work_experience.role.0'] = searchParams.role // filtering based on latest role(jobTitle)
+      // }
 
-      // const mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
-      let mongoResults;
-      if (searchParams.name) {
-        mongoResults = [];
-      }
-      else {
-        mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
-      }
-
+      // // const mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
+      // let mongoResults;
+      // if (searchParams.name) {
+      //   mongoResults = [];
+      // }
+      // else {
+      //   mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
+      // }
 
       const allUsers = _.uniqBy(_.concat(mongoResults, sqlResults), '_id')
       let userList = []
