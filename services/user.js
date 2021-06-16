@@ -1359,28 +1359,28 @@ async function searchUsers(searchReq, res, forMap) {
         }
         else {
           for (let name of searchText) {
-            queryArray = [
-              {
-                country_name: {
-                  [Op.like]: `%${name}%`
-                }
-              },
-              {
-                zipcode: {
-                  [Op.like]: `%${name}%`
-                }
-              },
-              {
-                state: {
-                  [Op.like]: `%${name}%`
-                }
-              },
-              {
-                city: {
-                  [Op.like]: `%${name}%`
-                }
-              },
-            ]
+            // queryArray = [
+            //   {
+            //     country_name: {
+            //       [Op.like]: `%${name}%`
+            //     }
+            //   },
+            //   {
+            //     zipcode: {
+            //       [Op.like]: `%${name}%`
+            //     }
+            //   },
+            //   {
+            //     state: {
+            //       [Op.like]: `%${name}%`
+            //     }
+            //   },
+            //   {
+            //     city: {
+            //       [Op.like]: `%${name}%`
+            //     }
+            //   },
+            // ]
             queryArray.push({
               first_name: {
                 [Op.like]: `%${name}`
