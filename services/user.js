@@ -1318,6 +1318,7 @@ async function searchUsers(searchReq, res, forMap) {
     let initialFilter = []
     let finalFilter = []
     let mongoResults = []
+    let flag = false
     let sqlQuery
     let mongoProjection, mongoQuery
     if (searchText && searchParams.same) {
@@ -1458,21 +1459,7 @@ async function searchUsers(searchReq, res, forMap) {
           }else{
             mongoQuery = { $text: { $search: searchParams.searchText } }
             mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
-            if (!searchParams.name && searchParams.function) {
-              mongoQuery['work_experience.jobTitles.0'] = searchParams.function
-            }
-
-            if (!searchParams.name && searchParams.role) {
-              mongoQuery['work_experience.role.0'] = searchParams.role // filtering based on latest role(jobTitle)
-            }
-
-            // const mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
-            if (searchParams.name) {
-              mongoResults = [];
-            }
-            else {
-              mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
-            }
+            flag = true
           }
         }
       } else {
@@ -1496,31 +1483,30 @@ async function searchUsers(searchReq, res, forMap) {
             limit: limit,
             offset: offset
           })
-
-
-
           sqlResults = _.map(sqlResults, 'dataValues')
         } else {
           sqlResults = []
         }
+        flag = true
       }
+      
+      if(flag){
+        if (!searchParams.name && searchParams.function) {
+          mongoQuery['work_experience.jobTitles.0'] = searchParams.function
+        }
 
-      // if (!searchParams.name && searchParams.function) {
-      //   mongoQuery['work_experience.jobTitles.0'] = searchParams.function
-      // }
+        if (!searchParams.name && searchParams.role) {
+          mongoQuery['work_experience.role.0'] = searchParams.role // filtering based on latest role(jobTitle)
+        }
 
-      // if (!searchParams.name && searchParams.role) {
-      //   mongoQuery['work_experience.role.0'] = searchParams.role // filtering based on latest role(jobTitle)
-      // }
-
-      // // const mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
-      // let mongoResults;
-      // if (searchParams.name) {
-      //   mongoResults = [];
-      // }
-      // else {
-      //   mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
-      // }
+        // const mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
+        if (searchParams.name) {
+          mongoResults = [];
+        }
+        else {
+          mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
+        }
+      }
 
       const allUsers = _.uniqBy(_.concat(mongoResults, sqlResults), '_id')
       let userList = []
