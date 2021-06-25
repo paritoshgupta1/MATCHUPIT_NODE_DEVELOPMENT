@@ -356,7 +356,7 @@ async function login(payload) {
       const userObj = {}
       user = user.dataValues
       if (user.admin_reason !='NO') {
-        return responseObj(true, 402, user.admin_reason)
+        return responseObj(true, 403, user.admin_reason)
       }
       const handlerResponse = await hashHandler
       const compareHash = handlerResponse.compareHash
