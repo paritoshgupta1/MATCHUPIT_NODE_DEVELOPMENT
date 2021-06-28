@@ -1777,8 +1777,45 @@ async function deactivateAccount(searchReq) {
   try {
     let id = searchReq.headers.userid
     let type = searchReq.tokenUser.data.account_type
+    let accountType = searchReq.body.type
+    let reason = searchReq.body.admin_reason
+    let userId = searchReq.body.userId
     let acc
-    if (type === 'individual')
+    if(accountType === 'admin')
+    {
+      acc = await User.findOne({ where: { id: userId }, attributes: ["id", "email", "is_active", "admin_reason"] })
+      let status =  acc.admin_reason
+      acc.is_active = !acc.is_active
+      acc.admin_reason = reason
+      await acc.save()
+      if (status === 'NO') {
+        const emailPayload = {
+          from: 'no-reply@matchupit.com',
+          to: acc.email,
+          subject: 'Deactivation of your matchupIT account',
+          html: `<p>Dear User,</p>
+          <p>Your Account is deactivated due to below reason :</p>
+          <p>"${reason}"</p>`
+        }
+        await sendMail(emailPayload);
+        //disp = 'Deactivated'
+      }
+      else
+      {
+        const emailPayload = {
+          from: 'no-reply@matchupit.com',
+          to: acc.email,
+          subject: 'Activation of your matchupIT account',
+          html: `<p>Dear User,</p>
+          <p>Your Account is activated Successfully</p>`
+        }
+        await sendMail(emailPayload);
+        //disp = 'Deactivated'
+      }
+      return responseObj(false, 200, `Account ${reason}`, {})
+    }
+    else{
+      if (type === 'individual')
       acc = await User.findOne({ where: { id: id }, attributes: ["id", "email", "is_active"] })
     else {
       acc = await Corporate.findOne({ where: { id: id }, attributes: ["id", "email", "is_active"] })
@@ -1802,6 +1839,9 @@ async function deactivateAccount(searchReq) {
       disp = 'Deactivated'
     }
     return responseObj(false, 200, `Account ${disp}`, {})
+    }
+    
+    
   } catch (ex) {
     console.log(ex)
     return responseObj(true, 500, 'Error in toggling activation of account', { err_stack: ex.stack })
