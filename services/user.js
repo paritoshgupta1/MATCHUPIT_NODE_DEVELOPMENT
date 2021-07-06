@@ -1331,60 +1331,10 @@ async function searchUsers(searchReq, res, forMap) {
     else {
 
       if (searchText) {
-        let queryArray = [];
-
+        let queryArray = []
         if (searchParams.name) {
           for (let name of searchText) {
-            queryArray.push({
-              first_name: {
-                [Op.like]: `%${name}%`
-              }
-            })
-            queryArray.push({
-              last_name: {
-                [Op.like]: `%${name}%`
-              }
-            })
-          }
-
-          sqlQuery = {
-            [Op.and]: [
-              {
-                [Op.or]:
-                  queryArray
-              },
-              {
-                is_active: {
-                  [Op.eq]: true
-                }
-              }
-            ]
-          }
-        }
-        else {
-          for (let name of searchText) {
-            // queryArray = [
-            //   {
-            //     country_name: {
-            //       [Op.like]: `%${name}%`
-            //     }
-            //   },
-            //   {
-            //     zipcode: {
-            //       [Op.like]: `%${name}%`
-            //     }
-            //   },
-            //   {
-            //     state: {
-            //       [Op.like]: `%${name}%`
-            //     }
-            //   },
-            //   {
-            //     city: {
-            //       [Op.like]: `%${name}%`
-            //     }
-            //   },
-            // ]
+           if(name){
             queryArray.push({
               first_name: {
                 [Op.like]: `%${name}%`
@@ -1455,15 +1405,20 @@ async function searchUsers(searchReq, res, forMap) {
               sqlResults = []
             }
             queryArray = []
+            }
           }
-          if(sqlResults.length){
-            mongoQuery = {}
-            mongoProjection = {}
-          }else{
-            mongoQuery = { $text: { $search: searchParams.searchText } }
-            mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
-            flag = true
-          }
+          // if(searchParams.skills)
+          // {
+          //   mongoQuery = { $text: { $search: searchParams.skills } }
+          //    mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
+          //    mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
+          // }
+        }
+        else
+        {
+              mongoQuery = { $text: { $search: searchParams.searchText } }
+             mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
+             flag = true
         }
       } else {
         sqlQuery = {}
@@ -1503,12 +1458,12 @@ async function searchUsers(searchReq, res, forMap) {
         }
 
         // const mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
-        if (searchParams.name) {
-          mongoResults = [];
-        }
-        else {
+        // if (searchParams.name) {
+        //   mongoResults = [];
+        // }
+        // else {
           mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
-        }
+        //}
       }
 
       const allUsers = _.uniqBy(_.concat(mongoResults, sqlResults), '_id')
