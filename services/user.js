@@ -1342,7 +1342,7 @@ async function searchUsers(searchReq, res, forMap) {
             })
             queryArray.push({
               last_name: {
-                [Op.like]: `${name}%`
+                [Op.like]: `%${name}%`
               }
             })
             sqlQuery = {

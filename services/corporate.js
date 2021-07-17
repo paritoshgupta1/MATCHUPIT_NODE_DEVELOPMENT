@@ -19,7 +19,8 @@ const UserProfile = require('../models/schemas/user_profiles')
 
 const searchCorporate = async (searchReq, res, forMap) => {
     let reqObj = searchReq.body
-    let { searchText, pageNo, type, country, city, industry, employeeCount, zipcode, name, same } = reqObj;
+    //let { searchText, pageNo, type, country, city, industry, employeeCount, zipcode, name, same } = reqObj;
+    let { name, searchText, country, city, industry, type, employeeCount, zipcode, pageNo, same } = reqObj;
     try {
         const page = pageNo || 1;
         const limit = (forMap) ? 10000 : 10;
@@ -27,13 +28,14 @@ const searchCorporate = async (searchReq, res, forMap) => {
         let sqlResults = [];
         let sqlQuery, mongoProjection, mongoQuery
         searchText = searchText.trim();
+
         if (searchText && same) {
             const serviceResponse = await searchUsers(searchReq, forMap)
             return sendResponse(serviceResponse, res);
         }
         else {
 
-            if (searchText) {
+           // if (searchText || zipcode) {
 
                 if (name) {
                     sqlQuery = {
@@ -172,12 +174,12 @@ const searchCorporate = async (searchReq, res, forMap) => {
                 }
                 mongoQuery = { $text: { $search: searchText } }
                 mongoProjection = { _id: 1 }
-            }
-            else {
-                sqlQuery = {}
-                mongoQuery = {}
-                mongoProjection = {}
-            }
+            // }
+            // else {
+            //     sqlQuery = {}
+            //     mongoQuery = {}
+            //     mongoProjection = {}
+            // }
 
             let searchParams = searchReq.body
             if (searchParams.searchText) {
@@ -232,12 +234,24 @@ const searchCorporate = async (searchReq, res, forMap) => {
             }
             let maxCount
             if (employeeCount !== "-1" && employeeCount) {
-                let minCount = +employeeCount.split("-")[0];
-                maxCount = +employeeCount.split("-")[1];
-                console.log('minCount, maxCount', minCount, maxCount);
-                sqlQuery.employee_count = {
-                    [Op.between]: [minCount, maxCount],
-                };
+                if(employeeCount === "above5000"){
+                    //let minCount = +employeeCount.split("above")[0];
+                    let minCount = +employeeCount.split("above")[1];
+                    console.log('minCount, maxCount', minCount);
+                    sqlQuery.employee_count = {
+                        [Op.gte]: [minCount],
+                    };
+                }
+                else
+                {
+                    let minCount = +employeeCount.split("-")[0];
+                    maxCount = +employeeCount.split("-")[1];
+                    console.log('minCount, maxCount', minCount, maxCount);
+                    sqlQuery.employee_count = {
+                        [Op.between]: [minCount, maxCount],
+                    };
+                }
+                
             }
 
             sqlResults = await Corporate.findAll({
