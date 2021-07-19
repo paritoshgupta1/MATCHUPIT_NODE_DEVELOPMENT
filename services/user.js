@@ -1809,13 +1809,24 @@ async function updateEmail(req) {
     let email = req.body.email;
     let type = req.body.type;
     let Model = req.tokenUser.data.account_type === 'individual' ? User : Corporate;
-    if (type === "email") {
+    //if (type === "email") {
       let isExists;
+      if(req.tokenUser.data.account_type === 'individual'){
       isExists = await User.findOne({
         where: {
           email: email
         }
       })
+
+      if (!isExists) {
+        isExists = await User.findOne({
+          where: {
+            recovery_email: email
+          }
+        })
+      }
+    }
+    else {
       if (!isExists) {
         isExists = await Corporate.findOne({
           where: {
@@ -1823,9 +1834,19 @@ async function updateEmail(req) {
           }
         })
       }
+
+      if (!isExists) {
+        isExists = await Corporate.findOne({
+          where: {
+            recovery_email: email
+          }
+        })
+      }
+    }
       if (isExists) {
         return responseObj(false, 400, `Email already exists`, {})
       }
+      if (type === "email") {
       await Model.update({ email_verified: true, email }, { where: { id: req.tokenUser.data.id } })
       await model.corporatemastermapping.update({ email: email }, { where: { subId: req.tokenUser.data.id } });
     } else if (type === "recovery") {
