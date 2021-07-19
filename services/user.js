@@ -1811,38 +1811,66 @@ async function updateEmail(req) {
     let Model = req.tokenUser.data.account_type === 'individual' ? User : Corporate;
     //if (type === "email") {
       let isExists;
-      if(req.tokenUser.data.account_type === 'individual'){
-      isExists = await User.findOne({
+      let userData = await Model.findOne({
         where: {
-          email: email
+            id: req.headers.userid
+        },
+        attributes: ["email", "recovery_email"],
+        raw: true
+    })
+    if(userData)
+    {
+      if(type === "email"){
+        if(userData.recovery_email === email){
+          isExists = true;
         }
-      })
-
-      if (!isExists) {
-        isExists = await User.findOne({
-          where: {
-            recovery_email: email
-          }
-        })
+        if (!isExists) {
+          isExists = await Model.findOne({
+            where: {
+              email: email
+            }
+          })
+        }
+      }
+      else {
+        if(userData.email === email){
+          isExists = true;
+        }
       }
     }
-    else {
-      if (!isExists) {
-        isExists = await Corporate.findOne({
-          where: {
-            email: email
-          }
-        })
-      }
 
-      if (!isExists) {
-        isExists = await Corporate.findOne({
-          where: {
-            recovery_email: email
-          }
-        })
-      }
-    }
+      // if(req.tokenUser.data.account_type === 'individual'){
+      // isExists = await User.findOne({
+      //   where: {
+      //     email: email
+      //   }
+      // })
+
+      // if (!isExists) {
+      //   isExists = await User.findOne({
+      //     where: {
+      //       email: email
+      //     }
+      //   })
+      // }
+    //}
+    // else {
+    //   if (!isExists) {
+    //     isExists = await Corporate.findOne({
+    //       where: {
+    //         email: email
+    //       }
+    //     })
+    //   }
+
+    //   if (!isExists) {
+    //     isExists = await Corporate.findOne({
+    //       where: {
+    //         recovery_email: email
+    //       }
+    //     })
+    //   }
+    // }
       if (isExists) {
         return responseObj(false, 400, `Email already exists`, {})
       }
