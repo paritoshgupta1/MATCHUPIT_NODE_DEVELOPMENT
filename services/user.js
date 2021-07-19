@@ -1826,11 +1826,11 @@ async function updateEmail(req) {
       if (isExists) {
         return responseObj(false, 400, `Email already exists`, {})
       }
-      await Model.update({ email_verified: false, email }, { where: { id: req.tokenUser.data.id } })
+      await Model.update({ email_verified: true, email }, { where: { id: req.tokenUser.data.id } })
       await model.corporatemastermapping.update({ email: email }, { where: { subId: req.tokenUser.data.id } });
     } else if (type === "recovery") {
       console.log(Model, email, req.tokenUser.data.id)
-      await Model.update({ recovery_email_verified: false, recovery_email: email }, { where: { id: req.tokenUser.data.id } })
+      await Model.update({ recovery_email_verified: true, recovery_email: email }, { where: { id: req.tokenUser.data.id } })
     }
     else {
       return responseObj(false, 400, `Incorrect type`, {})
