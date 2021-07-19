@@ -414,6 +414,9 @@ async function getReport(searchReq) {
                 }
                 resObj.UserType = user.dataValues.account_type
                 resObj.UserEmail = user.dataValues.email
+                resObj.id = user.dataValues.id
+                resObj.is_Active = user.dataValues.is_active 
+                resObj.admin_Reason = user.dataValues.admin_reason
             }
             let subscriptiondetails = await model.subscription.findOne({
                 where: { user_id: id }
@@ -435,6 +438,9 @@ async function getReport(searchReq) {
             let respObj = {};
             respObj.orderNumber = res.order_number;
             respObj.transactionId = res.payment_gateway_transaction_id;
+            respObj.userId = resObj.id;
+            respObj.is_Active = resObj.is_Active
+            respObj.admin_Reason = resObj.admin_Reason
             respObj.userName = resObj.UserName;
             respObj.userType = resObj.UserType;
             respObj.userEmail = resObj.UserEmail;
@@ -452,6 +458,9 @@ async function getReport(searchReq) {
             fields: {
                 "orderNumber": "Order Number",
                 "transactionId": "Transaction Id",
+                "userId": "User Id",
+                "is_Active": "Status",
+                "admin_Reason": "Reason",
                 "userName": "Name",
                 "userType": "Type",
                 "userEmail": "Email",

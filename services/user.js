@@ -355,6 +355,9 @@ async function login(payload) {
       }
       const userObj = {}
       user = user.dataValues
+      if (user.admin_reason !='NO') {
+        return responseObj(true, 403, user.admin_reason)
+      }
       const handlerResponse = await hashHandler
       const compareHash = handlerResponse.compareHash
       const match = compareHash(user.password, payload.password)
@@ -1328,10 +1331,10 @@ async function searchUsers(searchReq, res, forMap) {
     else {
 
       if (searchText) {
-        let queryArray = [];
-
+        let queryArray = []
         if (searchParams.name) {
           for (let name of searchText) {
+           if(name){
             queryArray.push({
               first_name: {
                 [Op.like]: `%${name}%`
@@ -1340,56 +1343,6 @@ async function searchUsers(searchReq, res, forMap) {
             queryArray.push({
               last_name: {
                 [Op.like]: `%${name}%`
-              }
-            })
-          }
-
-          sqlQuery = {
-            [Op.and]: [
-              {
-                [Op.or]:
-                  queryArray
-              },
-              {
-                is_active: {
-                  [Op.eq]: true
-                }
-              }
-            ]
-          }
-        }
-        else {
-          for (let name of searchText) {
-            // queryArray = [
-            //   {
-            //     country_name: {
-            //       [Op.like]: `%${name}%`
-            //     }
-            //   },
-            //   {
-            //     zipcode: {
-            //       [Op.like]: `%${name}%`
-            //     }
-            //   },
-            //   {
-            //     state: {
-            //       [Op.like]: `%${name}%`
-            //     }
-            //   },
-            //   {
-            //     city: {
-            //       [Op.like]: `%${name}%`
-            //     }
-            //   },
-            // ]
-            queryArray.push({
-              first_name: {
-                [Op.like]: `%${name}`
-              }
-            })
-            queryArray.push({
-              last_name: {
-                [Op.like]: `${name}%`
               }
             })
             sqlQuery = {
@@ -1452,15 +1405,20 @@ async function searchUsers(searchReq, res, forMap) {
               sqlResults = []
             }
             queryArray = []
+            }
           }
-          if(sqlResults.length){
-            mongoQuery = {}
-            mongoProjection = {}
-          }else{
-            mongoQuery = { $text: { $search: searchParams.searchText } }
-            mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
-            flag = true
-          }
+          // if(searchParams.skills)
+          // {
+          //   mongoQuery = { $text: { $search: searchParams.skills } }
+          //    mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
+          //    mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
+          // }
+        }
+        else
+        {
+              mongoQuery = { $text: { $search: searchParams.searchText } }
+             mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
+             flag = true
         }
       } else {
         sqlQuery = {}
@@ -1500,12 +1458,12 @@ async function searchUsers(searchReq, res, forMap) {
         }
 
         // const mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
-        if (searchParams.name) {
-          mongoResults = [];
-        }
-        else {
+        // if (searchParams.name) {
+        //   mongoResults = [];
+        // }
+        // else {
           mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
-        }
+        //}
       }
 
       const allUsers = _.uniqBy(_.concat(mongoResults, sqlResults), '_id')
@@ -1774,8 +1732,45 @@ async function deactivateAccount(searchReq) {
   try {
     let id = searchReq.headers.userid
     let type = searchReq.tokenUser.data.account_type
+    let accountType = searchReq.body.type
+    let reason = searchReq.body.admin_reason
+    let userId = searchReq.body.userId
     let acc
-    if (type === 'individual')
+    if(accountType === 'admin')
+    {
+      acc = await User.findOne({ where: { id: userId }, attributes: ["id", "email", "is_active", "admin_reason"] })
+      let status =  acc.admin_reason
+      acc.is_active = !acc.is_active
+      acc.admin_reason = reason
+      await acc.save()
+      if (status === 'NO') {
+        const emailPayload = {
+          from: 'no-reply@matchupit.com',
+          to: acc.email,
+          subject: 'Deactivation of your matchupIT account',
+          html: `<p>Dear User,</p>
+          <p>Your Account is deactivated due to below reason :</p>
+          <p>"${reason}"</p>`
+        }
+        await sendMail(emailPayload);
+        //disp = 'Deactivated'
+      }
+      else
+      {
+        const emailPayload = {
+          from: 'no-reply@matchupit.com',
+          to: acc.email,
+          subject: 'Activation of your matchupIT account',
+          html: `<p>Dear User,</p>
+          <p>Your Account is activated Successfully</p>`
+        }
+        await sendMail(emailPayload);
+        //disp = 'Deactivated'
+      }
+      return responseObj(false, 200, `Account ${reason}`, {})
+    }
+    else{
+      if (type === 'individual')
       acc = await User.findOne({ where: { id: id }, attributes: ["id", "email", "is_active"] })
     else {
       acc = await Corporate.findOne({ where: { id: id }, attributes: ["id", "email", "is_active"] })
@@ -1799,6 +1794,9 @@ async function deactivateAccount(searchReq) {
       disp = 'Deactivated'
     }
     return responseObj(false, 200, `Account ${disp}`, {})
+    }
+    
+    
   } catch (ex) {
     console.log(ex)
     return responseObj(true, 500, 'Error in toggling activation of account', { err_stack: ex.stack })
@@ -1828,11 +1826,11 @@ async function updateEmail(req) {
       if (isExists) {
         return responseObj(false, 400, `Email already exists`, {})
       }
-      await Model.update({ email_verified: false, email }, { where: { id: req.tokenUser.data.id } })
+      await Model.update({ email_verified: true, email }, { where: { id: req.tokenUser.data.id } })
       await model.corporatemastermapping.update({ email: email }, { where: { subId: req.tokenUser.data.id } });
     } else if (type === "recovery") {
       console.log(Model, email, req.tokenUser.data.id)
-      await Model.update({ recovery_email_verified: false, recovery_email: email }, { where: { id: req.tokenUser.data.id } })
+      await Model.update({ recovery_email_verified: true, recovery_email: email }, { where: { id: req.tokenUser.data.id } })
     }
     else {
       return responseObj(false, 400, `Incorrect type`, {})
