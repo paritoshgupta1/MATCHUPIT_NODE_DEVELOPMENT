@@ -819,7 +819,7 @@ async function verifyEmailOTP(inputOTP, inputEmail) {
     // } else {
     //   await OTPs.updateOne({ email: inputEmail, type: 'verify-email' }, { email_verified: true })
     // }
-    await OTPs.updateOne({ email: inputEmail, type: 'verify-email' }, { email_verified: true })
+    //await OTPs.updateOne({ email: inputEmail, type: 'verify-email' }, { email_verified: true })
     // update the status
     // let userDetails = {}
     // let Model = {}
@@ -1821,7 +1821,7 @@ async function updateEmail(req) {
     if(userData)
     {
       if(type === "email"){
-        if(userData.recovery_email === email){
+        if((userData.recovery_email).toUpperCase() === email.toUpperCase()){
           isExists = true;
         }
         if (!isExists) {
@@ -1833,7 +1833,7 @@ async function updateEmail(req) {
         }
       }
       else {
-        if(userData.email === email){
+        if((userData.email).toUpperCase() === email.toUpperCase()){
           isExists = true;
         }
       }
@@ -1904,8 +1904,8 @@ async function recoveryVerify(inputOTP, inputEmail, r, tokenData) {
     if (OTPDetails.email != inputEmail) {
       return responseObj(false, 400, 'Invalid OTP')
     }
-    let Model = tokenData.data.account_type === 'individual' ? User : Corporate;
-    await Model.update({ recovery_email_verified: true }, { where: { id: tokenData.data.id } })
+    //let Model = tokenData.data.account_type === 'individual' ? User : Corporate;
+   // await Model.update({ recovery_email_verified: true }, { where: { id: tokenData.data.id } })
 
     return responseObj(true, 200, 'Recovery email successfully verified')
   } catch (ex) {
