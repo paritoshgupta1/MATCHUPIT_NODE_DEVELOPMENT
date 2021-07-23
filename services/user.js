@@ -1315,7 +1315,7 @@ async function searchUsers(searchReq, res, forMap) {
     const searchText = (searchParams.searchText && searchParams.searchText.split(' ')) || ''
    const zipcode = searchParams.zipcode
     const pageNo = searchParams.pageNo || 1
-    const limit = (forMap) ? 10000 : 10;
+    const limit = (forMap) ? 10000 : 10000;
     const offset = (forMap) ? 0 : (pageNo - 1) * limit
     let sqlResults = []
     let initialFilter = []
