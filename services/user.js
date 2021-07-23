@@ -819,7 +819,7 @@ async function verifyEmailOTP(inputOTP, inputEmail) {
     // } else {
     //   await OTPs.updateOne({ email: inputEmail, type: 'verify-email' }, { email_verified: true })
     // }
-    await OTPs.updateOne({ email: inputEmail, type: 'verify-email' }, { email_verified: true })
+    //await OTPs.updateOne({ email: inputEmail, type: 'verify-email' }, { email_verified: true })
     // update the status
     // let userDetails = {}
     // let Model = {}
@@ -1809,23 +1809,72 @@ async function updateEmail(req) {
     let email = req.body.email;
     let type = req.body.type;
     let Model = req.tokenUser.data.account_type === 'individual' ? User : Corporate;
-    if (type === "email") {
+    //if (type === "email") {
       let isExists;
-      isExists = await User.findOne({
+      let userData = await Model.findOne({
         where: {
-          email: email
+            id: req.headers.userid
+        },
+        attributes: ["email", "recovery_email"],
+        raw: true
+    })
+    if(userData)
+    {
+      if(type === "email"){
+        if((userData.recovery_email).toUpperCase() === email.toUpperCase()){
+          isExists = true;
         }
-      })
-      if (!isExists) {
-        isExists = await Corporate.findOne({
-          where: {
-            email: email
-          }
-        })
+        if (!isExists) {
+          isExists = await Model.findOne({
+            where: {
+              email: email
+            }
+          })
+        }
       }
+      else {
+        if((userData.email).toUpperCase() === email.toUpperCase()){
+          isExists = true;
+        }
+      }
+    }
+
+      // if(req.tokenUser.data.account_type === 'individual'){
+      // isExists = await User.findOne({
+      //   where: {
+      //     email: email
+      //   }
+      // })
+
+      // if (!isExists) {
+      //   isExists = await User.findOne({
+      //     where: {
+      //       email: email
+      //     }
+      //   })
+      // }
+    //}
+    // else {
+    //   if (!isExists) {
+    //     isExists = await Corporate.findOne({
+    //       where: {
+    //         email: email
+    //       }
+    //     })
+    //   }
+
+    //   if (!isExists) {
+    //     isExists = await Corporate.findOne({
+    //       where: {
+    //         recovery_email: email
+    //       }
+    //     })
+    //   }
+    // }
       if (isExists) {
         return responseObj(false, 400, `Email already exists`, {})
       }
+      if (type === "email") {
       await Model.update({ email_verified: true, email }, { where: { id: req.tokenUser.data.id } })
       await model.corporatemastermapping.update({ email: email }, { where: { subId: req.tokenUser.data.id } });
     } else if (type === "recovery") {
@@ -1855,8 +1904,8 @@ async function recoveryVerify(inputOTP, inputEmail, r, tokenData) {
     if (OTPDetails.email != inputEmail) {
       return responseObj(false, 400, 'Invalid OTP')
     }
-    let Model = tokenData.data.account_type === 'individual' ? User : Corporate;
-    await Model.update({ recovery_email_verified: true }, { where: { id: tokenData.data.id } })
+    //let Model = tokenData.data.account_type === 'individual' ? User : Corporate;
+   // await Model.update({ recovery_email_verified: true }, { where: { id: tokenData.data.id } })
 
     return responseObj(true, 200, 'Recovery email successfully verified')
   } catch (ex) {
