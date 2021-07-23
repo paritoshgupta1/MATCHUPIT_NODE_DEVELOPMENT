@@ -1434,7 +1434,7 @@ async function searchUsers(searchReq, res, forMap) {
           sqlQuery.city = searchParams.city
         }
 
-        if (searchParams.searchText || searchParams.zipcode) {
+        if (searchParams.searchText || searchParams.zipcode || searchParams.country || searchParams.city) {
           sqlResults = await User.findAll({
             attributes: [['id', '_id']],
             where: sqlQuery,
