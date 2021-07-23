@@ -1315,7 +1315,7 @@ async function searchUsers(searchReq, res, forMap) {
     const searchText = (searchParams.searchText && searchParams.searchText.split(' ')) || ''
    const zipcode = searchParams.zipcode
     const pageNo = searchParams.pageNo || 1
-    const limit = (forMap) ? 10000 : 10;
+    const limit = (forMap) ? 10000 : 10000;
     const offset = (forMap) ? 0 : (pageNo - 1) * limit
     let sqlResults = []
     let initialFilter = []
@@ -1434,7 +1434,7 @@ async function searchUsers(searchReq, res, forMap) {
           sqlQuery.city = searchParams.city
         }
 
-        if (searchParams.searchText || searchParams.zipcode) {
+        if (searchParams.searchText || searchParams.zipcode || searchParams.country || searchParams.city) {
           sqlResults = await User.findAll({
             attributes: [['id', '_id']],
             where: sqlQuery,
@@ -1444,8 +1444,9 @@ async function searchUsers(searchReq, res, forMap) {
           sqlResults = _.map(sqlResults, 'dataValues')
         } else {
           sqlResults = []
+          flag = true
         }
-        flag = true
+        //flag = true
       }
       
       if(flag){
@@ -2496,7 +2497,7 @@ async function sendInviteMail(req, res) {
             subject: `${sender_full_name} is inviting you to join upcoming platform MatchupIT`,
             html: `<p>Hi ${reciever_full_name},</p>
             <p style="display:inline;">${sender_full_name} invites you to join the unique platform MatchupIT.</p>
-            <p>Click here https://stage.matchupit.com/ and signup  to be part of the technology community.</p>
+            <p>Click here https://matchupit.com/ and signup  to be part of the technology community.</p>
             <p> Best,</p>
             <p>${sender_full_name}</p> `
           } 
