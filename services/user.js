@@ -1444,8 +1444,9 @@ async function searchUsers(searchReq, res, forMap) {
           sqlResults = _.map(sqlResults, 'dataValues')
         } else {
           sqlResults = []
+          flag = true
         }
-        flag = true
+        //flag = true
       }
       
       if(flag){
