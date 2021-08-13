@@ -1451,11 +1451,11 @@ async function searchUsers(searchReq, res, forMap) {
       
       if(flag){
         if (!searchParams.name && searchParams.function) {
-          mongoQuery['work_experience.jobTitles.0'] = searchParams.function
+          mongoQuery['work_experience.jobTitles'] = searchParams.function
         }
 
         if (!searchParams.name && searchParams.role) {
-          mongoQuery['work_experience.role.0'] = searchParams.role // filtering based on latest role(jobTitle)
+          mongoQuery['work_experience.role'] = searchParams.role // filtering based on latest role(jobTitle)
         }
 
         // const mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
@@ -1485,7 +1485,14 @@ async function searchUsers(searchReq, res, forMap) {
 
       if (searchParams.function) {
         userList = _.filter(userList, (user) => {
-          return _.get(user, 'profile.work_experience.jobTitles.0') == searchParams.function
+          const functions = _.get(user, 'profile.work_experience.jobTitles')
+          if(functions){
+            for(let i of functions){
+              if (_.lowerCase(i).includes(_.lowerCase(searchParams.function))) {
+                return user;
+              };
+            }
+          }
         })
       }
 
@@ -1513,7 +1520,14 @@ async function searchUsers(searchReq, res, forMap) {
 
       if (searchParams.role) {
         userList = _.filter(userList, (user) => {
-          return _.get(user, 'profile.work_experience.role.0') == searchParams.role
+          const roles = _.get(user, 'profile.work_experience.role')
+          if(roles){
+            for(let i of roles){
+              if (_.lowerCase(i).includes(_.lowerCase(searchParams.role))) {
+                return user;
+              };
+            }
+          }
         })
       }
 
