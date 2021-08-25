@@ -485,7 +485,7 @@ const getPosts = async (req, res) => {
 
 const editCommunity = async (req, res) => {
   try {
-    let { communityId, title, description } = req.body;
+    let { communityId, title, description, roles } = req.body;
 
 
     if (!title || !description || !communityId) {
@@ -522,6 +522,7 @@ const editCommunity = async (req, res) => {
     let communityObj = {
       title: title.trim(),
       description: description.trim(),
+      roles: roles.trim(),
     };
 
     await Community.findOneAndUpdate({ _id: communityId }, communityObj);
