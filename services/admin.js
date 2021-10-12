@@ -482,7 +482,7 @@ async function getReport(searchReq) {
 async function cronJob(req, res) {
     try {
 
-        let expiredUsersQuery = `select distinct s1.user_id from subscriptions s1 where end_date <= current_timestamp() and user_Id like 'user-%' and  
+        let expiredUsersQuery = `select distinct s1.user_id from subscriptions s1 where end_date == current_timestamp() and user_Id like 'user-%' and  
         s1.user_id not in(select distinct user_id from subscriptions where end_date >= current_timestamp());`
         const expiredUsers = await model.sequelize.query(expiredUsersQuery, { type: QueryTypes.SELECT, raw: true });
 
@@ -506,7 +506,7 @@ async function cronJob(req, res) {
         }
 
 
-        let expiredCorporatesQuery = `select distinct s1.user_id from subscriptions s1 where end_date <= current_timestamp() and user_Id like 'c-%' and  
+        let expiredCorporatesQuery = `select distinct s1.user_id from subscriptions s1 where end_date == current_timestamp() and user_Id like 'c-%' and  
         s1.user_id not in(select distinct user_id from subscriptions where end_date >= current_timestamp());`
         const expiredCorporates = await model.sequelize.query(expiredCorporatesQuery, { type: QueryTypes.SELECT, raw: true });
 
