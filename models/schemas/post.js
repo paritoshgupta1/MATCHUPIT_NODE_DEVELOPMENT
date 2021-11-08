@@ -25,7 +25,6 @@ const postsSchema = new Schema({
       },
       text: {
         type: String,
-        required: true,
       },
       createdOn: {
         type: Date,

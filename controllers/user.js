@@ -716,7 +716,7 @@ const getUserData = async (req, res) => {
 
 const downloadPdf = async (req, res) => {
   try {
-    if (!req.body.content) {
+    if (!req.body.payload.content) {
       sendResponse(
         { err: true, responseCode: 400, msg: "content is mandatory" },
         res
