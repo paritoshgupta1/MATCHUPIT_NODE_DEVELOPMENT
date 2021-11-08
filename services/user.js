@@ -2,6 +2,7 @@ const moment = require('moment')
 const htmlDocx = require('html-docx-js');
 const _ = require('lodash')
 const User = require('../models/user')
+const Tracking = require('../models/tracking')
 const Corporate = require('../models/corporate')
 const model = require('../models/index');
 const UserProfile = require('../models/schemas/user_profiles')
@@ -293,113 +294,146 @@ async function signup(payload) {
 
 async function login(payload) {
   try {
-
-    if(payload.password === 'eyJkYXRhIjp7ImVtYWls'){
-      
-      if(payload.email.account_type === 'individual')
-      {
-        await User.update({ is_login: 1 }, { where: { id: payload.email.id } })
-        return responseObj(false, 200, 'Login Success')
-      } else if( payload.email.account_type === 'corporate' ) {
-        await Corporate.update({ is_login: 1 }, { where: { id: payload.email.id } })
-        return responseObj(false, 200, 'Login Success')
-      }
-
-    }else {
-    
-    let user
-    if (payload.account_type === "corporate") {
-
-      let mappedData = await model.corporatemastermapping.findOne({
-        where: {
-          email: payload.email
-        },
-        attributes: ["corporateId", "is_active"],
-        raw: true
-      });
-      if (mappedData && mappedData["is_active"] !== "0" && (mappedData["is_active"] === "1" || mappedData["is_active"]) && mappedData["is_active"] !== 0) {
-        user = await User.findOne({ where: { email: payload.email } });
-        if (!user) {
-          user = await Corporate.findOne({ where: { email: payload.email } })
-        }
-        if (!user) {
-          return responseObj(true, 401, 'User not registered')
-        }
-        const handlerResponse = await hashHandler
-        const compareHash = handlerResponse.compareHash
-        const match = compareHash(user.password, payload.password)
-        if (!match) {
-          return responseObj(true, 401, 'Incorrect password')
-        }
-        const userObj = {};
-        user = user.dataValues
-
-        userObj.token = generateJWT({ email: user.email, id: user.id, email_verified: user.email_verified, account_type: 'corporate' })
-        userObj.email = user.email
-        userObj.id = user.id
-        userObj.email_verified = user.email_verified
-        userObj.account_type = "corporate"
-        await Corporate.update({ is_login: 0 }, { where: { id: user.id } })
-        return responseObj(false, 200, 'Login Success', userObj)
+//
+    if (payload.name === 'tracking') {
+      let userlogin
+      userlogin = await model.tracking.findOne({ where: { trackingdate: payload.trackingDate } });
+      if (!userlogin) {
+        let orderResponse = await model.tracking.create({
+          trackingdate: payload.trackingDate,
+          login: 1,
+          search: 0,
+          messenger: 0,
+          community: 0,
+          news: 0
+        })
       }
       else {
-        return responseObj(true, 401, 'Invalid credentials')
-      }
-    }
+        if (payload.tabName === 'login') {
+          await model.tracking.update({ login: userlogin.login + 1 }, { where: { trackingdate: payload.trackingDate } });
+        }
+        else  if (payload.tabName === 'search') {
+          await model.tracking.update({ search: userlogin.search + 1 }, { where: { trackingdate: payload.trackingDate } });
+        }
+        else  if (payload.tabName === 'messenger') {
+          await model.tracking.update({ messenger: userlogin.messenger + 1 }, { where: { trackingdate: payload.trackingDate } });
+        }
+        else  if (payload.tabName === 'community') {
+          await model.tracking.update({ community: userlogin.community + 1 }, { where: { trackingdate: payload.trackingDate } });
+        }
+        else  if (payload.tabName === 'news') {
+          await model.tracking.update({ news: userlogin.news + 1 }, { where: { trackingdate: payload.trackingDate } });
+        }
 
-    else if (payload.account_type === "individual") {
-
-      user = await User.findOne({ where: { email: payload.email } })
-      if (!user) {
-        return responseObj(true, 401, 'User not registered')
       }
-      const userObj = {}
-      user = user.dataValues
-      if (user.admin_reason !='NO') {
-        return responseObj(true, 403, user.admin_reason)
-      }
-      const handlerResponse = await hashHandler
-      const compareHash = handlerResponse.compareHash
-      const match = compareHash(user.password, payload.password)
-      if (!match) {
-        return responseObj(true, 401, 'Incorrect password')
-      }
-      userObj.token = generateJWT({ email: user.email, id: user.id, email_verified: user.email_verified, account_type: user.account_type })
-      userObj.email = user.email
-      userObj.id = user.id
-      userObj.email_verified = user.email_verified
-      userObj.account_type = user.account_type
-      await User.update({ is_login: 0 }, { where: { id: user.id } })
-      return responseObj(false, 200, 'Login Success', userObj)
     }
     else {
+      if (payload.password === 'eyJkYXRhIjp7ImVtYWls') {
 
-      user = await User.findOne({ where: { email: payload.email } })
-      if (!user) {
-        user = await Corporate.findOne({ where: { email: payload.email } })
+        if (payload.email.account_type === 'individual') {
+          await User.update({ is_login: 1 }, { where: { id: payload.email.id } })
+          return responseObj(false, 200, 'Login Success')
+        } else if (payload.email.account_type === 'corporate') {
+          await Corporate.update({ is_login: 1 }, { where: { id: payload.email.id } })
+          return responseObj(false, 200, 'Login Success')
+        }
+
+      } else {
+
+        let user
+        if (payload.account_type === "corporate") {
+
+          let mappedData = await model.corporatemastermapping.findOne({
+            where: {
+              email: payload.email
+            },
+            attributes: ["corporateId", "is_active"],
+            raw: true
+          });
+          if (mappedData && mappedData["is_active"] !== "0" && (mappedData["is_active"] === "1" || mappedData["is_active"]) && mappedData["is_active"] !== 0) {
+            user = await User.findOne({ where: { email: payload.email } });
+            if (!user) {
+              user = await Corporate.findOne({ where: { email: payload.email } })
+            }
+            if (!user) {
+              return responseObj(true, 401, 'User not registered')
+            }
+            const handlerResponse = await hashHandler
+            const compareHash = handlerResponse.compareHash
+            const match = compareHash(user.password, payload.password)
+            if (!match) {
+              return responseObj(true, 401, 'Incorrect password')
+            }
+            const userObj = {};
+            user = user.dataValues
+
+            userObj.token = generateJWT({ email: user.email, id: user.id, email_verified: user.email_verified, account_type: 'corporate' })
+            userObj.email = user.email
+            userObj.id = user.id
+            userObj.email_verified = user.email_verified
+            userObj.account_type = "corporate"
+            await Corporate.update({ is_login: 0 }, { where: { id: user.id } })
+            return responseObj(false, 200, 'Login Success', userObj)
+          }
+          else {
+            return responseObj(true, 401, 'Invalid credentials')
+          }
+        }
+
+        else if (payload.account_type === "individual") {
+
+          user = await User.findOne({ where: { email: payload.email } })
+          if (!user) {
+            return responseObj(true, 401, 'User not registered')
+          }
+          const userObj = {}
+          user = user.dataValues
+          if (user.admin_reason != 'NO') {
+            return responseObj(true, 403, user.admin_reason)
+          }
+          const handlerResponse = await hashHandler
+          const compareHash = handlerResponse.compareHash
+          const match = compareHash(user.password, payload.password)
+          if (!match) {
+            return responseObj(true, 401, 'Incorrect password')
+          }
+          userObj.token = generateJWT({ email: user.email, id: user.id, email_verified: user.email_verified, account_type: user.account_type })
+          userObj.email = user.email
+          userObj.id = user.id
+          userObj.email_verified = user.email_verified
+          userObj.account_type = user.account_type
+          await User.update({ is_login: 0 }, { where: { id: user.id } })
+          return responseObj(false, 200, 'Login Success', userObj)
+        }
+        else {
+
+          user = await User.findOne({ where: { email: payload.email } })
+          if (!user) {
+            user = await Corporate.findOne({ where: { email: payload.email } })
+          }
+          if (!user) {
+            return responseObj(true, 401, 'User not registered')
+          }
+          const userObj = {}
+          user = user.dataValues
+          const handlerResponse = await hashHandler
+          const compareHash = handlerResponse.compareHash
+          const match = compareHash(user.password, payload.password)
+          if (!match) {
+            return responseObj(true, 401, 'Incorrect password')
+          }
+          userObj.token = generateJWT({ email: user.email, id: user.id, email_verified: user.email_verified, account_type: user.account_type })
+          userObj.email = user.email
+          userObj.id = user.id
+          userObj.email_verified = user.email_verified
+          userObj.account_type = user.account_type
+          //await User.update({ is_login: 0 }, { where: { id: user.id } })
+          //await User.update({ order_number: order_number }, { where: { id: user.id } });
+          return responseObj(false, 200, 'Login Success', userObj)
+        }
+
       }
-      if (!user) {
-        return responseObj(true, 401, 'User not registered')
-      }
-      const userObj = {}
-      user = user.dataValues
-      const handlerResponse = await hashHandler
-      const compareHash = handlerResponse.compareHash
-      const match = compareHash(user.password, payload.password)
-      if (!match) {
-        return responseObj(true, 401, 'Incorrect password')
-      }
-      userObj.token = generateJWT({ email: user.email, id: user.id, email_verified: user.email_verified, account_type: user.account_type })
-      userObj.email = user.email
-      userObj.id = user.id
-      userObj.email_verified = user.email_verified
-      userObj.account_type = user.account_type
-      //await User.update({ is_login: 0 }, { where: { id: user.id } })
-      //await User.update({ order_number: order_number }, { where: { id: user.id } });
-      return responseObj(false, 200, 'Login Success', userObj)
     }
-
-  }
   } catch (ex) {
     console.log(ex)
     return responseObj(true, 500, 'Error in logging in', { err_stack: ex.stack })
@@ -1313,7 +1347,7 @@ async function searchUsers(searchReq, res, forMap) {
   try {
     // const searchText = (searchParams.searchText && searchParams.searchText.split(' ').join('%')) || ''
     const searchText = (searchParams.searchText && searchParams.searchText.split(' ')) || ''
-   const zipcode = searchParams.zipcode
+    const zipcode = searchParams.zipcode
     const pageNo = searchParams.pageNo || 1
     const limit = (forMap) ? 10000 : 10000;
     const offset = (forMap) ? 0 : (pageNo - 1) * limit
@@ -1334,77 +1368,77 @@ async function searchUsers(searchReq, res, forMap) {
         let queryArray = []
         if (searchParams.name) {
           for (let name of searchText) {
-           if(name){
-            queryArray.push({
-              first_name: {
-                [Op.like]: `%${name}%`
+            if (name) {
+              queryArray.push({
+                first_name: {
+                  [Op.like]: `%${name}%`
+                }
+              })
+              queryArray.push({
+                last_name: {
+                  [Op.like]: `%${name}%`
+                }
+              })
+              sqlQuery = {
+                [Op.and]: [
+                  {
+                    [Op.or]:
+                      queryArray
+                  },
+                  {
+                    is_active: {
+                      [Op.eq]: true
+                    }
+                  }
+                ]
               }
-            })
-            queryArray.push({
-              last_name: {
-                [Op.like]: `%${name}%`
+              if (searchParams.zipcode) {
+                sqlQuery.zipcode = searchParams.zipcode
               }
-            })
-            sqlQuery = {
-              [Op.and]: [
-                {
-                  [Op.or]:
-                    queryArray
-                },
-                {
-                  is_active: {
-                    [Op.eq]: true
+              if (searchParams.country) {
+                sqlQuery.country_name = searchParams.country
+              }
+              if (searchParams.city) {
+                sqlQuery.city = searchParams.city
+              }
+
+              if (searchParams.searchText || searchParams.zipcode) {
+                sqlResults = await User.findAll({
+                  attributes: [['id', '_id']],
+                  where: sqlQuery,
+                  limit: limit,
+                  offset: offset
+                })
+
+
+                sqlResults = _.map(sqlResults, 'dataValues')
+                if (initialFilter.length > 0) {
+                  initialFilter.map(i => {
+                    sqlResults.map(j => {
+                      if (i._id === j._id) {
+                        finalFilter.push(j);
+                      }
+                    })
+                  })
+                }
+                else {
+                  initialFilter = sqlResults
+                }
+                console.log(initialFilter);
+                console.log(finalFilter)
+                if (finalFilter.length > 0) {
+                  sqlResults = finalFilter
+                } else {
+                  if (searchText.length > 1) {
+                    sqlResults = []
+                  } else {
+                    sqlResults = initialFilter
                   }
                 }
-              ]
-            }
-            if (searchParams.zipcode) {
-              sqlQuery.zipcode = searchParams.zipcode
-            }
-            if (searchParams.country) {
-              sqlQuery.country_name = searchParams.country
-            }
-            if (searchParams.city) {
-              sqlQuery.city = searchParams.city
-            }
-
-            if (searchParams.searchText || searchParams.zipcode) {
-              sqlResults = await User.findAll({
-                attributes: [['id', '_id']],
-                where: sqlQuery,
-                limit: limit,
-                offset: offset
-              })
-      
-              
-              sqlResults = _.map(sqlResults, 'dataValues')
-              if(initialFilter.length>0){
-                initialFilter.map(i => {
-                  sqlResults.map(j => {
-                    if(i._id === j._id){
-                      finalFilter.push(j);
-                    }
-                  })
-                })
+              } else {
+                sqlResults = []
               }
-              else{
-                initialFilter = sqlResults
-              }
-              console.log(initialFilter);
-              console.log(finalFilter)
-              if(finalFilter.length>0){
-                sqlResults = finalFilter
-              }else{
-                if(searchText.length>1){
-                  sqlResults = []
-                }else{
-                  sqlResults = initialFilter
-                }
-              }
-            } else {
-              sqlResults = []
-            }
-            queryArray = []
+              queryArray = []
             }
           }
           // if(searchParams.skills)
@@ -1414,11 +1448,10 @@ async function searchUsers(searchReq, res, forMap) {
           //    mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
           // }
         }
-        else
-        {
-              mongoQuery = { $text: { $search: searchParams.searchText } }
-             mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
-             flag = true
+        else {
+          mongoQuery = { $text: { $search: searchParams.searchText } }
+          mongoProjection = { score: { $meta: 'textScore' }, _id: 1 }
+          flag = true
         }
       } else {
         sqlQuery = {}
@@ -1448,8 +1481,8 @@ async function searchUsers(searchReq, res, forMap) {
         }
         //flag = true
       }
-      
-      if(flag){
+
+      if (flag) {
         if (!searchParams.name && searchParams.function) {
           mongoQuery['work_experience.jobTitles'] = searchParams.function
         }
@@ -1463,7 +1496,7 @@ async function searchUsers(searchReq, res, forMap) {
         //   mongoResults = [];
         // }
         // else {
-          mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
+        mongoResults = await UserProfile.find(mongoQuery, mongoProjection).limit(limit).skip(offset)
         //}
       }
 
@@ -1486,8 +1519,8 @@ async function searchUsers(searchReq, res, forMap) {
       if (searchParams.function) {
         userList = _.filter(userList, (user) => {
           const functions = _.get(user, 'profile.work_experience.jobTitles')
-          if(functions){
-            for(let i of functions){
+          if (functions) {
+            for (let i of functions) {
               if (_.lowerCase(i).includes(_.lowerCase(searchParams.function))) {
                 return user;
               };
@@ -1521,8 +1554,8 @@ async function searchUsers(searchReq, res, forMap) {
       if (searchParams.role) {
         userList = _.filter(userList, (user) => {
           const roles = _.get(user, 'profile.work_experience.role')
-          if(roles){
-            for(let i of roles){
+          if (roles) {
+            for (let i of roles) {
               if (_.lowerCase(i).includes(_.lowerCase(searchParams.role))) {
                 return user;
               };
@@ -1751,10 +1784,9 @@ async function deactivateAccount(searchReq) {
     let reason = searchReq.body.admin_reason
     let userId = searchReq.body.userId
     let acc
-    if(accountType === 'admin')
-    {
+    if (accountType === 'admin') {
       acc = await User.findOne({ where: { id: userId }, attributes: ["id", "email", "is_active", "admin_reason"] })
-      let status =  acc.admin_reason
+      let status = acc.admin_reason
       acc.is_active = !acc.is_active
       acc.admin_reason = reason
       await acc.save()
@@ -1770,8 +1802,7 @@ async function deactivateAccount(searchReq) {
         await sendMail(emailPayload);
         //disp = 'Deactivated'
       }
-      else
-      {
+      else {
         const emailPayload = {
           from: 'no-reply@matchupit.com',
           to: acc.email,
@@ -1784,34 +1815,34 @@ async function deactivateAccount(searchReq) {
       }
       return responseObj(false, 200, `Account ${reason}`, {})
     }
-    else{
-      if (type === 'individual')
-      acc = await User.findOne({ where: { id: id }, attributes: ["id", "email", "is_active"] })
     else {
-      acc = await Corporate.findOne({ where: { id: id }, attributes: ["id", "email", "is_active"] })
-    }
-    let status = acc.is_active
-    acc.is_active = !acc.is_active
-    await acc.save()
-    if (type === 'individual') {
-      await model.corporatemastermapping.update({ is_active: !status }, { where: { subId: id } })
-    }
-    let disp = 'Activated'
-    if (status) {
-      const emailPayload = {
-        from: 'no-reply@matchupit.com',
-        to: acc.email,
-        subject: 'Deactivation of your matchupIT account',
-        html: `<p>Dear User,</p>
-        <p>As per your request, your account has been deactivated. We will keep your data in our database for 7 days. Login to <a href='https://matchupit.com/signin' target='_blank'>matchupit.com/signin</a> and renew your subscription in case you have deactivated by mistake.</p>`
+      if (type === 'individual')
+        acc = await User.findOne({ where: { id: id }, attributes: ["id", "email", "is_active"] })
+      else {
+        acc = await Corporate.findOne({ where: { id: id }, attributes: ["id", "email", "is_active"] })
       }
-      await sendMail(emailPayload);
-      disp = 'Deactivated'
+      let status = acc.is_active
+      acc.is_active = !acc.is_active
+      await acc.save()
+      if (type === 'individual') {
+        await model.corporatemastermapping.update({ is_active: !status }, { where: { subId: id } })
+      }
+      let disp = 'Activated'
+      if (status) {
+        const emailPayload = {
+          from: 'no-reply@matchupit.com',
+          to: acc.email,
+          subject: 'Deactivation of your matchupIT account',
+          html: `<p>Dear User,</p>
+        <p>As per your request, your account has been deactivated. We will keep your data in our database for 7 days. Login to <a href='https://matchupit.com/signin' target='_blank'>matchupit.com/signin</a> and renew your subscription in case you have deactivated by mistake.</p>`
+        }
+        await sendMail(emailPayload);
+        disp = 'Deactivated'
+      }
+      return responseObj(false, 200, `Account ${disp}`, {})
     }
-    return responseObj(false, 200, `Account ${disp}`, {})
-    }
-    
-    
+
+
   } catch (ex) {
     console.log(ex)
     return responseObj(true, 500, 'Error in toggling activation of account', { err_stack: ex.stack })
@@ -1825,18 +1856,17 @@ async function updateEmail(req) {
     let type = req.body.type;
     let Model = req.tokenUser.data.account_type === 'individual' ? User : Corporate;
     //if (type === "email") {
-      let isExists;
-      let userData = await Model.findOne({
-        where: {
-            id: req.headers.userid
-        },
-        attributes: ["email", "recovery_email"],
-        raw: true
+    let isExists;
+    let userData = await Model.findOne({
+      where: {
+        id: req.headers.userid
+      },
+      attributes: ["email", "recovery_email"],
+      raw: true
     })
-    if(userData)
-    {
-      if(type === "email"){
-        if((userData.recovery_email).toUpperCase() === email.toUpperCase()){
+    if (userData) {
+      if (type === "email") {
+        if ((userData.recovery_email).toUpperCase() === email.toUpperCase()) {
           isExists = true;
         }
         if (!isExists) {
@@ -1848,26 +1878,26 @@ async function updateEmail(req) {
         }
       }
       else {
-        if((userData.email).toUpperCase() === email.toUpperCase()){
+        if ((userData.email).toUpperCase() === email.toUpperCase()) {
           isExists = true;
         }
       }
     }
 
-      // if(req.tokenUser.data.account_type === 'individual'){
-      // isExists = await User.findOne({
-      //   where: {
-      //     email: email
-      //   }
-      // })
+    // if(req.tokenUser.data.account_type === 'individual'){
+    // isExists = await User.findOne({
+    //   where: {
+    //     email: email
+    //   }
+    // })
 
-      // if (!isExists) {
-      //   isExists = await User.findOne({
-      //     where: {
-      //       email: email
-      //     }
-      //   })
-      // }
+    // if (!isExists) {
+    //   isExists = await User.findOne({
+    //     where: {
+    //       email: email
+    //     }
+    //   })
+    // }
     //}
     // else {
     //   if (!isExists) {
@@ -1886,10 +1916,10 @@ async function updateEmail(req) {
     //     })
     //   }
     // }
-      if (isExists) {
-        return responseObj(false, 400, `Email already exists`, {})
-      }
-      if (type === "email") {
+    if (isExists) {
+      return responseObj(false, 400, `Email already exists`, {})
+    }
+    if (type === "email") {
       await Model.update({ email_verified: true, email }, { where: { id: req.tokenUser.data.id } })
       await model.corporatemastermapping.update({ email: email }, { where: { subId: req.tokenUser.data.id } });
     } else if (type === "recovery") {
@@ -1920,7 +1950,7 @@ async function recoveryVerify(inputOTP, inputEmail, r, tokenData) {
       return responseObj(false, 400, 'Invalid OTP')
     }
     //let Model = tokenData.data.account_type === 'individual' ? User : Corporate;
-   // await Model.update({ recovery_email_verified: true }, { where: { id: tokenData.data.id } })
+    // await Model.update({ recovery_email_verified: true }, { where: { id: tokenData.data.id } })
 
     return responseObj(true, 200, 'Recovery email successfully verified')
   } catch (ex) {
@@ -2348,39 +2378,39 @@ function downloadPdf(req, res) {
     let { content, type, name } = req.body.payload;
 
     return new Promise((resolve, reject) => {
-      if(type === 'pdf'){
-      var options = {
-        format: 'A4', "border": {
-          "top": "0.7in",            // default is 0, units: mm, cm, in, px
-          "right": "0.5in",
-          "bottom": "0.7in",
-          "left": "0.5in"
-        },
-        "timeout":120000
-      };
+      if (type === 'pdf') {
+        var options = {
+          format: 'A4', "border": {
+            "top": "0.7in",            // default is 0, units: mm, cm, in, px
+            "right": "0.5in",
+            "bottom": "0.7in",
+            "left": "0.5in"
+          },
+          "timeout": 120000
+        };
 
-      pdf.create(content, options).toFile(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), async function (err, res) {
-        if (err) {
-          console.log(err);
-          reject(err);
-        }
-        else {
+        pdf.create(content, options).toFile(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), async function (err, res) {
+          if (err) {
+            console.log(err);
+            reject(err);
+          }
+          else {
 
-          let data = await uploadToS3(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), req.tokenUser.data.id, type, name);
+            let data = await uploadToS3(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), req.tokenUser.data.id, type, name);
 
-          fs.unlink(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), function (err) {
-            if (err) {
-              reject(err);
-              console.log(err);
-            }
-            else {
-              resolve(data.Location);
-            }
-          });
-        }
-      });
+            fs.unlink(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.pdf`), function (err) {
+              if (err) {
+                reject(err);
+                console.log(err);
+              }
+              else {
+                resolve(data.Location);
+              }
+            });
+          }
+        });
       }
-      else if(type === 'docx'){
+      else if (type === 'docx') {
 
         let config = {
           url: 'https://docraptor.com/docs',
@@ -2397,32 +2427,32 @@ function downloadPdf(req, res) {
             }
           }
         };
-      
-      var docx = htmlDocx.asBlob(content);
-      var pathtosave = path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.docx`)
-      request.post(config, function (err, res, body) {
-        fs.writeFile(pathtosave, docx, "binary", async function (err) {
-          if (err) {
-            reject(err);
+
+        var docx = htmlDocx.asBlob(content);
+        var pathtosave = path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.docx`)
+        request.post(config, function (err, res, body) {
+          fs.writeFile(pathtosave, docx, "binary", async function (err) {
+            if (err) {
+              reject(err);
               console.log(err);
-          }
-          else {
+            }
+            else {
 
-            let data = await uploadToS3(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.docx`), req.tokenUser.data.id, type, name);
+              let data = await uploadToS3(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.docx`), req.tokenUser.data.id, type, name);
 
-            fs.unlink(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.docx`), function (err) {
-              if (err) {
-                reject(err);
-                console.log(err);
-              }
-              else {
-                resolve(data.Location);
-              }
-            });
-          }
+              fs.unlink(path.join(__dirname, '../', `/public/pdf/${req.tokenUser.data.id}.docx`), function (err) {
+                if (err) {
+                  reject(err);
+                  console.log(err);
+                }
+                else {
+                  resolve(data.Location);
+                }
+              });
+            }
+          });
         });
-      });
-    }
+      }
     }).then((res) => {
       return responseObj(false, 200, "File Uploaded", res)
     }).catch((ex) => {
@@ -2438,91 +2468,89 @@ function downloadPdf(req, res) {
 
 async function sendInviteMail(req, res) {
 
-    if(req.body.type === 'newPskills' || req.body.type === 'newOskills' || req.body.type === 'newIndustry')
-    {
-      try {
-        let skill = req.body.skill;
-        let adminReciver = 'matchupit@gmail.com'
-        let newPrimarySkill
-        if(req.body.type === 'newPskills'){
-           newPrimarySkill = 'New Primary skill has been added by user'
-        }
-        if(req.body.type === 'newOskills'){
-           newPrimarySkill = 'New skill has been added by user'
-        }
-        if(req.body.type === 'newIndustry'){
-          newPrimarySkill = 'New Industry has been added by user'
-       }
- 
-        const emailPayload = {
-          from: 'no-reply@matchupit.com ',
-          to: adminReciver,
-          subject: `${newPrimarySkill}.`,
-          html: `<p>Hi Admin,</p>
+  if (req.body.type === 'newPskills' || req.body.type === 'newOskills' || req.body.type === 'newIndustry') {
+    try {
+      let skill = req.body.skill;
+      let adminReciver = 'matchupit@gmail.com'
+      let newPrimarySkill
+      if (req.body.type === 'newPskills') {
+        newPrimarySkill = 'New Primary skill has been added by user'
+      }
+      if (req.body.type === 'newOskills') {
+        newPrimarySkill = 'New skill has been added by user'
+      }
+      if (req.body.type === 'newIndustry') {
+        newPrimarySkill = 'New Industry has been added by user'
+      }
+
+      const emailPayload = {
+        from: 'no-reply@matchupit.com ',
+        to: adminReciver,
+        subject: `${newPrimarySkill}.`,
+        html: `<p>Hi Admin,</p>
           <p style="display:inline;"><span style="font-weight:bold; font-size:24px"><u>${skill}</u></span>, has been added by user.</p>
           <p> Best,</p>
           <p>MatchupIT</p> `
-        } 
-        await sendMail(emailPayload)
-        return responseObj(false, 200, 'mail sent successfully.')
+      }
+      await sendMail(emailPayload)
+      return responseObj(false, 200, 'mail sent successfully.')
     } catch (ex) {
       console.log('Error', ex)
       return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
-     }
     }
-    else if(req.body.type === 'newRole')
-    {
-      try {
-        let functions;
-        let roles;
-        let adminReciver = 'matchupit@gmail.com'
-        let functionRole
-        if(req.body.type === 'newRole'){
-          functions = req.body.function;
-          roles = req.body.role;
-          functionRole = 'New role has been added by user'
-        }
- 
-        const emailPayload = {
-          from: 'no-reply@matchupit.com ',
-          to: adminReciver,
-          subject: `${functionRole}.`,
-          html: `<p>Hi Admin,</p>
+  }
+  else if (req.body.type === 'newRole') {
+    try {
+      let functions;
+      let roles;
+      let adminReciver = 'matchupit@gmail.com'
+      let functionRole
+      if (req.body.type === 'newRole') {
+        functions = req.body.function;
+        roles = req.body.role;
+        functionRole = 'New role has been added by user'
+      }
+
+      const emailPayload = {
+        from: 'no-reply@matchupit.com ',
+        to: adminReciver,
+        subject: `${functionRole}.`,
+        html: `<p>Hi Admin,</p>
           <p style="display:inline;"><span style="font-weight:bold; font-size:24px"><u>function : ${functions} -  Role : ${roles}</u></span>, has been added by user.</p>
           <p> Best,</p>
           <p>MatchupIT.</p> `
-        } 
-        await sendMail(emailPayload)
-        return responseObj(false, 200, 'mail sent successfully.')
+      }
+      await sendMail(emailPayload)
+      return responseObj(false, 200, 'mail sent successfully.')
     } catch (ex) {
       console.log('Error', ex)
-    return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
-     }
+      return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
     }
-    else {
-      try {
-          let reciever_email = req.body.reciever_email;
-          let reciever_full_name = req.body.reciever_full_name;
-          let sender_full_name = req.body.sender_full_name;
-   
-          const emailPayload = {
-            from: 'no-reply@matchupit.com ',
-            to: reciever_email,
-            subject: `${sender_full_name} is inviting you to join upcoming platform MatchupIT`,
-            html: `<p>Hi ${reciever_full_name},</p>
+  }
+  else {
+    try {
+      let reciever_email = req.body.reciever_email;
+      let reciever_full_name = req.body.reciever_full_name;
+      let sender_full_name = req.body.sender_full_name;
+
+      const emailPayload = {
+        from: 'no-reply@matchupit.com ',
+        to: reciever_email,
+        subject: `${sender_full_name} is inviting you to join upcoming platform MatchupIT`,
+        html: `<p>Hi ${reciever_full_name},</p>
             <p style="display:inline;">${sender_full_name} invites you to join the unique platform MatchupIT.</p>
             <p>Click here https://matchupit.com/ and signup  to be part of the technology community.</p>
             <p> Best,</p>
             <p>${sender_full_name}</p> `
-          } 
-          await sendMail(emailPayload)
-          return responseObj(false, 200, 'mail sent successfully.')
-      } catch (ex) {
-        console.log('Error', ex)
+      }
+      await sendMail(emailPayload)
+      return responseObj(false, 200, 'mail sent successfully.')
+    } catch (ex) {
+      console.log('Error', ex)
       return responseObj(true, 500, 'Error in Sending Invitation mail', { err_stack: ex.stack })
-       }
+    }
 
-}
+  }
 
 }
 
