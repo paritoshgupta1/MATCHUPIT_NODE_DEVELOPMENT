@@ -96,6 +96,9 @@ const User = sequelize.define('user', {
   },
   is_login: {
     type: Sequelize.STRING
+  },
+  admin_reason: {
+    type: Sequelize.STRING
   }
 }, {
   // options

@@ -80,6 +80,7 @@ const createConversation = async (req, res) => {
 const getUnreadMessages = async (req, res) => {
     let unreadMessages =  0;
     let conversation1 = 0;
+    await User.update({ is_login: 0 }, { where: { id: req.headers.userid } })
     let conversationExists = await Conversation.find({ $or: [{ "sender.userId": req.headers.userid }, { "receiver.userId": req.headers.userid }] })
     let getOwner = req.headers.userid
     if (conversationExists) {

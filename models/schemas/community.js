@@ -10,6 +10,10 @@ const communitySchema = new Schema({
   description: {
     type: String,
     required: true,
+  }, 
+  roles: {
+    type: String,
+    required: true
   },
   createdBy: {
     type: String,

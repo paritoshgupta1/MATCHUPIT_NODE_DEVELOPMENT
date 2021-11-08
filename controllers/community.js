@@ -12,7 +12,7 @@ const responseObj = require("../helpers/response_handler").responseObj;
 
 const createCommunity = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, roles } = req.body;
 
     if (!title || !description) {
       sendResponse(
@@ -38,6 +38,7 @@ const createCommunity = async (req, res) => {
     let community = new Community({
       title: title.trim(),
       description: description.trim(),
+      roles: roles.trim(),
       is_active: true,
       createdBy: req.headers.userid,
       createdOn: new Date()
@@ -484,7 +485,7 @@ const getPosts = async (req, res) => {
 
 const editCommunity = async (req, res) => {
   try {
-    let { communityId, title, description } = req.body;
+    let { communityId, title, description, roles } = req.body;
 
 
     if (!title || !description || !communityId) {
@@ -521,6 +522,7 @@ const editCommunity = async (req, res) => {
     let communityObj = {
       title: title.trim(),
       description: description.trim(),
+      roles: roles.trim(),
     };
 
     await Community.findOneAndUpdate({ _id: communityId }, communityObj);
