@@ -295,39 +295,39 @@ async function signup(payload) {
 async function login(payload) {
   try {
 //
-    // if (payload.name === 'tracking') {
-    //   let userlogin
-    //   userlogin = await model.tracking.findOne({ where: { trackingdate: payload.trackingDate } });
-    //   if (!userlogin) {
-    //     let orderResponse = await model.tracking.create({
-    //       trackingdate: payload.trackingDate,
-    //       login: 1,
-    //       search: 0,
-    //       messenger: 0,
-    //       community: 0,
-    //       news: 0
-    //     })
-    //   }
-    //   else {
-    //     if (payload.tabName === 'login') {
-    //       await model.tracking.update({ login: userlogin.login + 1 }, { where: { trackingdate: payload.trackingDate } });
-    //     }
-    //     else  if (payload.tabName === 'search') {
-    //       await model.tracking.update({ search: userlogin.search + 1 }, { where: { trackingdate: payload.trackingDate } });
-    //     }
-    //     else  if (payload.tabName === 'messenger') {
-    //       await model.tracking.update({ messenger: userlogin.messenger + 1 }, { where: { trackingdate: payload.trackingDate } });
-    //     }
-    //     else  if (payload.tabName === 'community') {
-    //       await model.tracking.update({ community: userlogin.community + 1 }, { where: { trackingdate: payload.trackingDate } });
-    //     }
-    //     else  if (payload.tabName === 'news') {
-    //       await model.tracking.update({ news: userlogin.news + 1 }, { where: { trackingdate: payload.trackingDate } });
-    //     }
+    if (payload.name === 'tracking') {
+      let userlogin
+      userlogin = await model.tracking.findOne({ where: { trackingdate: payload.trackingDate } });
+      if (!userlogin) {
+        let orderResponse = await model.tracking.create({
+          trackingdate: payload.trackingDate,
+          login: 1,
+          search: 0,
+          messenger: 0,
+          community: 0,
+          news: 0
+        })
+      }
+      else {
+        if (payload.tabName === 'login') {
+          await model.tracking.update({ login: userlogin.login + 1 }, { where: { trackingdate: payload.trackingDate } });
+        }
+        else  if (payload.tabName === 'search') {
+          await model.tracking.update({ search: userlogin.search + 1 }, { where: { trackingdate: payload.trackingDate } });
+        }
+        else  if (payload.tabName === 'messenger') {
+          await model.tracking.update({ messenger: userlogin.messenger + 1 }, { where: { trackingdate: payload.trackingDate } });
+        }
+        else  if (payload.tabName === 'community') {
+          await model.tracking.update({ community: userlogin.community + 1 }, { where: { trackingdate: payload.trackingDate } });
+        }
+        else  if (payload.tabName === 'news') {
+          await model.tracking.update({ news: userlogin.news + 1 }, { where: { trackingdate: payload.trackingDate } });
+        }
 
-    //   }
-    // }
-    // else {
+      }
+    }
+    else {
       if (payload.password === 'eyJkYXRhIjp7ImVtYWls') {
 
         if (payload.email.account_type === 'individual') {
@@ -433,7 +433,7 @@ async function login(payload) {
         }
 
       }
-   // }
+    }
   } catch (ex) {
     console.log(ex)
     return responseObj(true, 500, 'Error in logging in', { err_stack: ex.stack })
