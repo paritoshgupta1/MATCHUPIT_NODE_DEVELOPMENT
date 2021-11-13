@@ -2,6 +2,7 @@ const moment = require('moment')
 const _ = require('lodash')
 const User = require('../models/user')
 const Corporate = require('../models/corporate')
+const Tracking = require('../models/tracking')
 const model = require('../models/index');
 const hashHandler = require('../helpers/hash_handler')
 const responseObj = require('../helpers/response_handler').responseObj
@@ -16,7 +17,7 @@ const Sequelize = require('sequelize');
 const { QueryTypes } = require('sequelize');
 // const sendMail = require('../helpers/email/sendgrid').sendMail;
 const sendMail = require('../helpers/email/email').sendMail
-
+//const model = require('../models/index');
 
 async function countUsers(searchReq) {
     try {
@@ -102,7 +103,39 @@ async function countUsers(searchReq) {
         for(let i=0;i<dates.length;i++){
             
             date = dates[i]
-
+            if(searchReq.body.type === 'individual')
+            {
+                let uCount = await model.tracking.findAll({
+                    where: {
+                        createdAt: {
+                            [Op.startsWith]: `${date}`
+                        }
+                    },
+                    attributes: ['login', 'search','messenger', 'community', 'news'],
+                    raw: true
+                })
+                if(uCount){
+                    let login = 0
+                    let search = 0
+                    let community = 0
+                    let messenger = 0
+                    let news = 0
+                    for(let j=0;j<uCount.length;j++){
+                        login = uCount[j].login + login
+                        search = uCount[j].search + search
+                        community = uCount[j].community + community
+                        messenger = uCount[j].messenger + messenger
+                        news = uCount[j].news + news
+                    }            
+            
+                tempObj = [i+1, login,search,messenger,community,news]
+                }
+                else
+                {
+                    tempObj = [i+1,0,0,0,0,0]
+                }
+            }
+            else{
             let uCount = await User.count({
                 where: {
                     createdAt: {
@@ -126,6 +159,7 @@ async function countUsers(searchReq) {
                 raw: true
             })
             tempObj = [i+1, uCount, cCount]
+        }
             resObj.push(tempObj)
         }
         return responseObj(false, 200, 'Count of users fetched', {result: resObj})
