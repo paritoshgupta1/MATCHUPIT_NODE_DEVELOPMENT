@@ -2,7 +2,6 @@ const moment = require('moment')
 const _ = require('lodash')
 const User = require('../models/user')
 const Corporate = require('../models/corporate')
-const Tracking = require('../models/tracking')
 const model = require('../models/index');
 const hashHandler = require('../helpers/hash_handler')
 const responseObj = require('../helpers/response_handler').responseObj
@@ -17,7 +16,6 @@ const Sequelize = require('sequelize');
 const { QueryTypes } = require('sequelize');
 // const sendMail = require('../helpers/email/sendgrid').sendMail;
 const sendMail = require('../helpers/email/email').sendMail
-//const model = require('../models/index');
 
 async function countUsers(searchReq) {
     try {
