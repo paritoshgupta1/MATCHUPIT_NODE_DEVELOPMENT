@@ -126,7 +126,8 @@ const login = async (req, res) => {
     const payload = {
       tabName: req.body.tabName,
       name: req.body.name,
-      trackingDate:req.body.date
+      trackingDate:req.body.date,
+      type:req.body.type
     };
 
     try {

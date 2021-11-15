@@ -133,6 +133,38 @@ async function countUsers(searchReq) {
                     tempObj = [i+1,0,0,0,0,0]
                 }
             }
+            else if(searchReq.body.type === 'corporate')
+            {
+                let uCount = await model.corporatetracking.findAll({
+                    where: {
+                        createdAt: {
+                            [Op.startsWith]: `${date}`
+                        }
+                    },
+                    attributes: ['login', 'search','messenger', 'community', 'news'],
+                    raw: true
+                })
+                if(uCount){
+                    let login = 0
+                    let search = 0
+                    let community = 0
+                    let messenger = 0
+                    let news = 0
+                    for(let j=0;j<uCount.length;j++){
+                        login = uCount[j].login + login
+                        search = uCount[j].search + search
+                        community = uCount[j].community + community
+                        messenger = uCount[j].messenger + messenger
+                        news = uCount[j].news + news
+                    }            
+            
+                tempObj = [i+1, login,search,messenger,community,news]
+                }
+                else
+                {
+                    tempObj = [i+1,0,0,0,0,0]
+                }
+            }
             else{
             let uCount = await User.count({
                 where: {
