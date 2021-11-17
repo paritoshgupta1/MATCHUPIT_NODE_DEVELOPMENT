@@ -39,7 +39,7 @@ async function countUsers(searchReq) {
                 datelt = moment().startOf('week').toDate()
                 break
             case "CM":
-                dategt = moment().startOf('month').add(1,'days').toDate()
+                dategt = moment().startOf('month').add(0,'days').toDate()
                 datelt = moment().add(0,'days').toDate()
                 break
             case "PM":
