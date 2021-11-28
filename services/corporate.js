@@ -589,6 +589,34 @@ const tagUser = async (req, res) => {
     }
 }
 
+const postjobs = async (req, res) => {
+
+    try{
+    let orderResponse = await models.jobspost.create({
+        corpid: req.body.corpId,
+        corpname: req.body.corpName,
+        jobtitle: req.body.jobTitle,
+        jobcountry: req.body.jobCountry,
+        jobstate: req.body.jobState,
+        jobzipcode: req.body.jobZipcode,
+        compensation: req.body.compensation,
+        emptype: req.body.empType,
+        industry: req.body.industry,
+        jobtitles: req.body.jobTitles,
+        isremote: req.body.isRemote,
+        role: req.body.role,
+        skillsp: req.body.skillsP,
+        skillso: req.body.skillsO,
+        description: req.body.description,
+        jobstatus: req.body.jobStatus
+      })
+      return responseObj(false, 200, 'Successfully posted')
+    }
+    catch (ex) {
+        console.log(ex)
+        return responseObj(true, 500, 'Error in Posting Job',{err_stack: ex.stack})
+    }
+}
 
 const addCorporateMember = async (req, res) => {
     if (!req.body.email) {
@@ -1412,6 +1440,7 @@ const getTaggedUsers = async (req, res) => {
 
 module.exports = {
     searchCorporate,
+    postjobs: postjobs,
     trackProfileVisit,
     getRecentSearch: getRecentSearch,
     getPopularProfile: getPopularProfile,

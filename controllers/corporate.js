@@ -105,6 +105,16 @@ const removeCorporateMember = async (req, res) => {
   }
 }
 
+const postjobs = async (req, res) => {
+  try {
+      const serviceResponse = await corporateService.postjobs(req, res)
+      return sendResponse(serviceResponse, res)
+  } catch (ex) {
+      console.log(ex)
+      return sendResponse({ err: true, responseCode: 500, msg: 'Error in posting job', err_stack: ex.stack }, res)
+  }
+}
+
 const getTaggedUsers = async (req, res) => {
   try {
       const serviceResponse = await corporateService.getTaggedUsers(req, res)
@@ -117,6 +127,7 @@ const getTaggedUsers = async (req, res) => {
 
 module.exports = {
     searchCorporates,
+    postjobs: postjobs,
     trackProfileVisit: trackProfileVisit,
     getRecentSearch: getRecentSearch,
     getRecentProfile: getRecentProfile,

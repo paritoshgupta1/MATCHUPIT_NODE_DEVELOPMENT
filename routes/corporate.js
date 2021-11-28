@@ -11,6 +11,8 @@ router.post('/search-corporate', authMiddleware.handleToken, corporateCtrl.searc
 
 router.post('/search-corporate/profile',authMiddleware.handleToken, corporateCtrl.trackProfileVisit)
 
+router.post('/jobpost',authMiddleware.handleToken, corporateCtrl.postjobs)
+
 router.post('/search-corporate/map', authMiddleware.handleToken, corporateCtrl.searchCorporatesForMap)
 
 router.get('/search-corporate/recent',authMiddleware.handleToken, corporateCtrl.getRecentSearch)
