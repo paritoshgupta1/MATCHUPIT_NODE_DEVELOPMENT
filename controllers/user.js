@@ -122,6 +122,22 @@ const login = async (req, res) => {
     }
 
   }
+  else if(req.body.tabName){
+    const payload = {
+      tabName: req.body.tabName,
+      name: req.body.name,
+      trackingDate:req.body.date,
+      type:req.body.type
+    };
+
+    try {
+      const serviceResponse = await userService.login(payload)
+      sendResponse(serviceResponse, res)
+    } catch (ex) {
+      console.log(ex)
+      sendResponse({ err: true, responseCode: 500, msg: 'Error in logging in', err_stack: ex.stack}, res)
+    }
+  }
   else {
 
     if (!req.body.email || !req.body.password) {

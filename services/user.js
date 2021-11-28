@@ -294,6 +294,92 @@ async function signup(payload) {
 async function login(payload) {
   try {
 
+    if (payload.name === 'tracking') {
+      if(payload.type === 'individual'){
+      let userlogin
+      //userlogin = await model.tracking.findOne({ where: { trackingdate: payload.trackingDate } });
+      userlogin = await model.tracking.findOne({
+        where: {
+            createdAt: {
+                [Op.startsWith]: payload.trackingDate
+            }
+        },
+        attributes: ['login', 'search','messenger', 'community', 'news'],
+        raw: true
+    })
+      if (!userlogin) {
+        let orderResponse = await model.tracking.create({
+          trackingdate: payload.trackingDate,
+          login: 1,
+          search: 0,
+          messenger: 0,
+          community: 0,
+          news: 0
+        })
+      }
+      else {
+        if (payload.tabName === 'login') {
+          await model.tracking.update({ login: userlogin.login + 1 }, { where: { createdAt: {[Op.startsWith]: payload.trackingDate} } });
+        }
+        else  if (payload.tabName === 'search') {
+          await model.tracking.update({ search: userlogin.search + 1 }, { where: { createdAt: {[Op.startsWith]: payload.trackingDate} } });
+        }
+        else  if (payload.tabName === 'messenger') {
+          await model.tracking.update({ messenger: userlogin.messenger + 1 }, { where: { createdAt: {[Op.startsWith]: payload.trackingDate} } });
+        }
+        else  if (payload.tabName === 'community') {
+          await model.tracking.update({ community: userlogin.community + 1 }, { where: { createdAt: {[Op.startsWith]: payload.trackingDate} } });
+        }
+        else  if (payload.tabName === 'news') {
+          await model.tracking.update({ news: userlogin.news + 1 },{ where: { createdAt: {[Op.startsWith]: payload.trackingDate} } });
+        }
+
+      }
+    }
+    else if(payload.type === 'corporate'){
+      let corporatelogin
+      //corporatelogin = await model.corporatetracking.findOne({ where: { trackingdate: payload.trackingDate } });
+      corporatelogin = await model.corporatetracking.findOne({
+        where: {
+          createdAt: {
+              [Op.startsWith]: payload.trackingDate
+          }
+      },
+      attributes: ['login', 'search','messenger', 'community', 'news'],
+      raw: true
+  })
+      if (!corporatelogin) {
+        let orderResponse = await model.corporatetracking.create({
+          trackingdate: payload.trackingDate,
+          login: 1,
+          search: 0,
+          messenger: 0,
+          community: 0,
+          news: 0
+        })
+      }
+      else {
+        if (payload.tabName === 'login') {
+          await model.corporatetracking.update({ login: corporatelogin.login + 1 }, { where: { createdAt: {[Op.startsWith]: payload.trackingDate} } });
+        }
+        else  if (payload.tabName === 'search') {
+          await model.corporatetracking.update({ search: corporatelogin.search + 1 }, { where: { createdAt: {[Op.startsWith]: payload.trackingDate} } });
+        }
+        else  if (payload.tabName === 'messenger') {
+          await model.corporatetracking.update({ messenger: corporatelogin.messenger + 1 }, { where: { createdAt: {[Op.startsWith]: payload.trackingDate} } });
+        }
+        else  if (payload.tabName === 'community') {
+          await model.corporatetracking.update({ community: corporatelogin.community + 1 }, { where: { createdAt: {[Op.startsWith]: payload.trackingDate} } });
+        }
+        else  if (payload.tabName === 'news') {
+          await model.corporatetracking.update({ news: corporatelogin.news + 1 },{ where: { createdAt: {[Op.startsWith]: payload.trackingDate} } });
+        }
+
+      }
+    }
+    }
+
+    else {
     if(payload.password === 'eyJkYXRhIjp7ImVtYWls'){
       
       if(payload.email.account_type === 'individual')
@@ -304,6 +390,7 @@ async function login(payload) {
         await Corporate.update({ is_login: 1 }, { where: { id: payload.email.id } })
         return responseObj(false, 200, 'Login Success')
       }
+      
 
     }else {
     
@@ -400,6 +487,7 @@ async function login(payload) {
     }
 
   }
+}
   } catch (ex) {
     console.log(ex)
     return responseObj(true, 500, 'Error in logging in', { err_stack: ex.stack })

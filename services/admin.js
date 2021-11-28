@@ -17,7 +17,6 @@ const { QueryTypes } = require('sequelize');
 // const sendMail = require('../helpers/email/sendgrid').sendMail;
 const sendMail = require('../helpers/email/email').sendMail
 
-
 async function countUsers(searchReq) {
     try {
         let searchParams = searchReq.body
@@ -33,15 +32,15 @@ async function countUsers(searchReq) {
             // cases CW, PW, CM, PM, PSM, CY, PY
             case "CW":
                 dategt = moment().startOf('week').toDate()
-                datelt = moment().add(1,'days').toDate()
+                datelt = moment().add(0,'days').toDate()
                 break
             case "PW":
                 dategt = moment().startOf('week').subtract(7,'days').toDate()
                 datelt = moment().startOf('week').toDate()
                 break
             case "CM":
-                dategt = moment().startOf('month').add(1,'days').toDate()
-                datelt = moment().add(1,'days').toDate()
+                dategt = moment().startOf('month').add(0,'days').toDate()
+                datelt = moment().add(0,'days').toDate()
                 break
             case "PM":
                 dategt = moment().startOf('month').subtract(1,'months').add(1,'days').toDate()
@@ -102,7 +101,71 @@ async function countUsers(searchReq) {
         for(let i=0;i<dates.length;i++){
             
             date = dates[i]
-
+            if(searchReq.body.type === 'individual')
+            {
+                let uCount = await model.tracking.findAll({
+                    where: {
+                        createdAt: {
+                            [Op.startsWith]: `${date}`
+                        }
+                    },
+                    attributes: ['login', 'search','messenger', 'community', 'news'],
+                    raw: true
+                })
+                if(uCount){
+                    let login = 0
+                    let search = 0
+                    let community = 0
+                    let messenger = 0
+                    let news = 0
+                    for(let j=0;j<uCount.length;j++){
+                        login = uCount[j].login + login
+                        search = uCount[j].search + search
+                        community = uCount[j].community + community
+                        messenger = uCount[j].messenger + messenger
+                        news = uCount[j].news + news
+                    }            
+            
+                tempObj = [i+1, login,search,messenger,community,news]
+                }
+                else
+                {
+                    tempObj = [i+1,0,0,0,0,0]
+                }
+            }
+            else if(searchReq.body.type === 'corporate')
+            {
+                let uCount = await model.corporatetracking.findAll({
+                    where: {
+                        createdAt: {
+                            [Op.startsWith]: `${date}`
+                        }
+                    },
+                    attributes: ['login', 'search','messenger', 'community', 'news'],
+                    raw: true
+                })
+                if(uCount){
+                    let login = 0
+                    let search = 0
+                    let community = 0
+                    let messenger = 0
+                    let news = 0
+                    for(let j=0;j<uCount.length;j++){
+                        login = uCount[j].login + login
+                        search = uCount[j].search + search
+                        community = uCount[j].community + community
+                        messenger = uCount[j].messenger + messenger
+                        news = uCount[j].news + news
+                    }            
+            
+                tempObj = [i+1, login,search,messenger,community,news]
+                }
+                else
+                {
+                    tempObj = [i+1,0,0,0,0,0]
+                }
+            }
+            else{
             let uCount = await User.count({
                 where: {
                     createdAt: {
@@ -126,6 +189,7 @@ async function countUsers(searchReq) {
                 raw: true
             })
             tempObj = [i+1, uCount, cCount]
+        }
             resObj.push(tempObj)
         }
         return responseObj(false, 200, 'Count of users fetched', {result: resObj})
