@@ -594,12 +594,12 @@ const postjobs = async (req, res) => {
     try{
     let orderResponse = await models.jobspost.create({
         corpid: req.body.corpId,
+        jobid: req.body.jobId,
         corpname: req.body.corpName,
         jobtitle: req.body.jobTitle,
         jobcountry: req.body.jobCountry,
         jobstate: req.body.jobState,
         jobzipcode: req.body.jobZipcode,
-        compensation: req.body.compensation,
         emptype: req.body.empType,
         industry: req.body.industry,
         jobtitles: req.body.jobTitles,
@@ -608,13 +608,51 @@ const postjobs = async (req, res) => {
         skillsp: req.body.skillsP,
         skillso: req.body.skillsO,
         description: req.body.description,
-        jobstatus: req.body.jobStatus
+        jobstatus: req.body.jobStatus,
+        minexperience: req.body.minExperience,
+        minqual: req.body.minQual,
+        mincomp: req.body.minComp,
+        maxcomp: req.body.maxComp,
+        comprange: req.body.compRange
       })
       return responseObj(false, 200, 'Successfully posted')
     }
     catch (ex) {
         console.log(ex)
         return responseObj(true, 500, 'Error in Posting Job',{err_stack: ex.stack})
+    }
+}
+
+const jobID = async (req, res) => {
+
+    try{
+        if(req.body.jobId)
+        {
+            let jobDetail
+            jobDetail = await models.jobspost.findAll({
+              where: {
+                corpid: req.body.corpId,
+                jobid: req.body.jobId
+              },
+              //attributes: ['jobid'],
+              raw: true
+          })
+          return responseObj(false, 200, 'Successfully posted', jobDetail)
+        }else{
+        let jobID
+        jobID = await models.jobspost.findAll({
+          where: {
+            corpid: req.body.corpId
+          },
+          attributes: ['jobid'],
+          raw: true
+      })
+      return responseObj(false, 200, 'Successfully posted', jobID)
+    }
+    }
+    catch (ex) {
+        console.log(ex)
+        return responseObj(true, 500, 'Error in getting JobIds',{err_stack: ex.stack})
     }
 }
 
@@ -1441,6 +1479,7 @@ const getTaggedUsers = async (req, res) => {
 module.exports = {
     searchCorporate,
     postjobs: postjobs,
+    jobID: jobID,
     trackProfileVisit,
     getRecentSearch: getRecentSearch,
     getPopularProfile: getPopularProfile,

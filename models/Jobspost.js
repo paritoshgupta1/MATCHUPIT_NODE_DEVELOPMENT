@@ -3,12 +3,12 @@ module.exports = (sequelize, DataTypes) => {
   const jobspost = sequelize.define('jobspost', {
     
     corpid: DataTypes.STRING,
+    jobid: DataTypes.STRING,
     corpname: DataTypes.STRING,
     jobtitle: DataTypes.STRING,
     jobcountry: DataTypes.STRING,
     jobstate: DataTypes.STRING,
     jobzipcode: DataTypes.STRING,
-    compensation: DataTypes.STRING,
     emptype: DataTypes.STRING,
     industry: DataTypes.STRING,
     jobtitles: DataTypes.STRING,
@@ -17,7 +17,12 @@ module.exports = (sequelize, DataTypes) => {
     skillsp: DataTypes.STRING,
     skillso: DataTypes.STRING,
     description: DataTypes.STRING,
-    jobstatus: DataTypes.STRING
+    jobstatus: DataTypes.STRING,
+    minexperience: DataTypes.STRING,
+    minqual: DataTypes.STRING,
+    mincomp: DataTypes.STRING,
+    maxcomp: DataTypes.STRING,
+    comprange: DataTypes.STRING
   }, {});
   jobspost.associate = function(models) {
     // associations can be defined here
