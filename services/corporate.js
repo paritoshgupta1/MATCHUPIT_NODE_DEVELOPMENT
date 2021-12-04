@@ -3,6 +3,7 @@ const _ = require('lodash');
 const sendResponse = require('../helpers/response_handler').sendResponse;
 const responseObj = require('../helpers/response_handler').responseObj;
 const Corporate = require('../models/corporate');
+const JobPost = require('../models/jobspost');
 const CorporateTags = require('../models/schemas/corporate_tags');
 const models = require('../models/index');
 const CorporateProfile = require('../models/schemas/corporate_profiles');
@@ -592,6 +593,45 @@ const tagUser = async (req, res) => {
 const postjobs = async (req, res) => {
 
     try{
+       
+        if(req.body.update){
+            let orderResponse = await models.jobspost.update({
+                corpname: req.body.corpName,
+                jobtitle: req.body.jobTitle,
+                jobcountry: req.body.jobCountry,
+                jobstate: req.body.jobState,
+                jobzipcode: req.body.jobZipcode,
+                emptype: req.body.empType,
+                industry: req.body.industry,
+                jobtitles: req.body.jobTitles,
+                isremote: req.body.isRemote,
+                role: req.body.role,
+                skillsp: req.body.skillsP,
+                skillso: req.body.skillsO,
+                description: req.body.description,
+                jobstatus: req.body.jobStatus,
+                minexperience: req.body.minExperience,
+                minqual: req.body.minQual,
+                mincomp: req.body.minComp,
+                maxcomp: req.body.maxComp,
+                comprange: req.body.compRange
+              },{where: {
+                corpid: req.body.corpId,
+                jobid: req.body.jobId
+              }})
+              return responseObj(false, 200, 'Updated Successfully')
+        }
+        else {
+            let jobDetail
+            jobDetail = await models.jobspost.findOne({
+              where: {
+                corpid: req.body.corpId,
+                jobid: req.body.jobId
+              },
+              //attributes: ['jobid'],
+              raw: true
+          })
+          if(!jobDetail){
     let orderResponse = await models.jobspost.create({
         corpid: req.body.corpId,
         jobid: req.body.jobId,
@@ -617,6 +657,9 @@ const postjobs = async (req, res) => {
       })
       return responseObj(false, 200, 'Successfully posted')
     }
+    return responseObj(false, 400, 'Already Exist')
+    }
+    }
     catch (ex) {
         console.log(ex)
         return responseObj(true, 500, 'Error in Posting Job',{err_stack: ex.stack})
@@ -637,7 +680,7 @@ const jobID = async (req, res) => {
               //attributes: ['jobid'],
               raw: true
           })
-          return responseObj(false, 200, 'Successfully posted', jobDetail)
+          return responseObj(false, 200, 'Successfully jobDetail', jobDetail)
         }else{
         let jobID
         jobID = await models.jobspost.findAll({
