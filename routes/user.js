@@ -7,6 +7,10 @@ router.post('/signup', userCtrl.signup)
 
 router.post('/login', userCtrl.login)
 
+router.post('/jobscount', userCtrl.jobsCount)
+
+router.post('/companyjobs', userCtrl.companyjobs)
+
 router.get('/switch-api', authMiddleware.handleToken, userCtrl.switchAccount)
 
 router.put('/profile/:id', authMiddleware.handleToken, userCtrl.updateUserProfile)

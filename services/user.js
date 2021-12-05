@@ -2696,7 +2696,45 @@ async function updateUserJobDetails(req, res) {
   }
 }
 
+const jobsCount = async (req, res) => {
 
+  try{
+    let recents = await model.jobspost.findAll({
+      attributes: ['corpname', [sequelize.fn('count', sequelize.col('corpid')), 'cnt']],
+      where: {
+        jobtitles: req.body.jobTitles,
+        jobstatus: 1
+      }, group: ['corpname'],
+      raw: true
+    })
+    return responseObj(false, 200, 'Successfully count', recents)
+  
+  }
+  catch (ex) {
+      console.log(ex)
+      return responseObj(true, 500, 'Error in getting job count',{err_stack: ex.stack})
+  }
+}
+
+const companyjobs = async (req, res) => {
+
+  try{
+    let recentsjobs = await model.jobspost.findAll({
+      where: {
+        jobtitles: req.body.jobTitles,
+        corpname: req.body.corpName,
+        jobstatus: 1
+      },
+      raw: true
+    })
+    return responseObj(false, 200, 'recentsjobs', recentsjobs)
+  
+  }
+  catch (ex) {
+      console.log(ex)
+      return responseObj(true, 500, 'Error in getting recentsjobs',{err_stack: ex.stack})
+  }
+}
 
 async function getJobTypes(req, res) {
   try {
@@ -2744,6 +2782,8 @@ function uploadToS3(fileName, userId, type, name) {
 module.exports = {
   signup: signup,
   login: login,
+  jobsCount:jobsCount,
+  companyjobs: companyjobs,
   switchAccount: switchAccount,
   updateUserProfile: updateUserProfile,
   getUserProfile: getUserProfile,

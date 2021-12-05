@@ -72,6 +72,28 @@ const signup = async (req, res) => {
 
 }
 
+const jobsCount = async (req, res) => {
+
+  try {
+    const serviceResponse = await userService.jobsCount(req, res)
+    return sendResponse(serviceResponse, res)
+} catch (ex) {
+    console.log(ex)
+    return sendResponse({ err: true, responseCode: 500, msg: 'Error in posting job', err_stack: ex.stack }, res)
+}
+}
+
+const companyjobs = async (req, res) => {
+
+  try {
+    const serviceResponse = await userService.companyjobs(req, res)
+    return sendResponse(serviceResponse, res)
+} catch (ex) {
+    console.log(ex)
+    return sendResponse({ err: true, responseCode: 500, msg: 'Error in posting job', err_stack: ex.stack }, res)
+}
+}
+
 const login = async (req, res) => {
 
   if (req.body.authorization) {
@@ -851,6 +873,8 @@ const getJobTypes = async (req, res) => {
 module.exports = {
   signup: signup,
   login: login,
+  jobsCount:jobsCount,
+  companyjobs: companyjobs,
   switchAccount: switchAccount,
   updateUserProfile: updateUserProfile,
   getUserProfile: getUserProfile,
