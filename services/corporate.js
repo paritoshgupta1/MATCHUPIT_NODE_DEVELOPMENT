@@ -3,7 +3,6 @@ const _ = require('lodash');
 const sendResponse = require('../helpers/response_handler').sendResponse;
 const responseObj = require('../helpers/response_handler').responseObj;
 const Corporate = require('../models/corporate');
-const JobPost = require('../models/jobspost');
 const CorporateTags = require('../models/schemas/corporate_tags');
 const models = require('../models/index');
 const CorporateProfile = require('../models/schemas/corporate_profiles');
