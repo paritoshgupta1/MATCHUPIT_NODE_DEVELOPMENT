@@ -19,6 +19,7 @@ const schema = new mongoose.Schema(
         name: String,
         roles: [{
           name: String,
+          description: String,
           meanSalary: [{
             region: String,
             currency: String,

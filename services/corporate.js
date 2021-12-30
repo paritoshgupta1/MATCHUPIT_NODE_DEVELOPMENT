@@ -589,6 +589,114 @@ const tagUser = async (req, res) => {
     }
 }
 
+const postjobs = async (req, res) => {
+
+    try{
+       
+        if(req.body.update){
+            let orderResponse = await models.jobspost.update({
+                corpname: req.body.corpName,
+                jobtitle: req.body.jobTitle,
+                jobcountry: req.body.jobCountry,
+                jobstate: req.body.jobState,
+                jobzipcode: req.body.jobZipcode,
+                emptype: req.body.empType,
+                industry: req.body.industry,
+                jobtitles: req.body.jobTitles,
+                isremote: req.body.isRemote,
+                role: req.body.role,
+                skillsp: req.body.skillsP,
+                skillso: req.body.skillsO,
+                description: req.body.description,
+                jobstatus: req.body.jobStatus,
+                minexperience: req.body.minExperience,
+                minqual: req.body.minQual,
+                mincomp: req.body.minComp,
+                maxcomp: req.body.maxComp,
+                comprange: req.body.compRange
+              },{where: {
+                corpid: req.body.corpId,
+                jobid: req.body.jobId
+              }})
+              return responseObj(false, 200, 'Updated Successfully')
+        }
+        else {
+            let jobDetail
+            jobDetail = await models.jobspost.findOne({
+              where: {
+                corpid: req.body.corpId,
+                jobid: req.body.jobId
+              },
+              //attributes: ['jobid'],
+              raw: true
+          })
+          if(!jobDetail){
+    let orderResponse = await models.jobspost.create({
+        corpid: req.body.corpId,
+        jobid: req.body.jobId,
+        corpname: req.body.corpName,
+        jobtitle: req.body.jobTitle,
+        jobcountry: req.body.jobCountry,
+        jobstate: req.body.jobState,
+        jobzipcode: req.body.jobZipcode,
+        emptype: req.body.empType,
+        industry: req.body.industry,
+        jobtitles: req.body.jobTitles,
+        isremote: req.body.isRemote,
+        role: req.body.role,
+        skillsp: req.body.skillsP,
+        skillso: req.body.skillsO,
+        description: req.body.description,
+        jobstatus: req.body.jobStatus,
+        minexperience: req.body.minExperience,
+        minqual: req.body.minQual,
+        mincomp: req.body.minComp,
+        maxcomp: req.body.maxComp,
+        comprange: req.body.compRange
+      })
+      return responseObj(false, 200, 'Successfully posted')
+    }
+    return responseObj(false, 400, 'Already Exist')
+    }
+    }
+    catch (ex) {
+        console.log(ex)
+        return responseObj(true, 500, 'Error in Posting Job',{err_stack: ex.stack})
+    }
+}
+
+const jobID = async (req, res) => {
+
+    try{
+        if(req.body.jobId)
+        {
+            let jobDetail
+            jobDetail = await models.jobspost.findAll({
+              where: {
+                corpid: req.body.corpId,
+                jobid: req.body.jobId
+              },
+              //attributes: ['jobid'],
+              raw: true
+          })
+          return responseObj(false, 200, 'Successfully jobDetail', jobDetail)
+        }else{
+        let jobID
+        jobID = await models.jobspost.findAll({
+          where: {
+            corpid: req.body.corpId
+          },
+          attributes: ['jobid'],
+          raw: true
+      })
+      return responseObj(false, 200, 'Successfully posted', jobID)
+    }
+    }
+    catch (ex) {
+        console.log(ex)
+        return responseObj(true, 500, 'Error in getting JobIds',{err_stack: ex.stack})
+    }
+}
 
 const addCorporateMember = async (req, res) => {
     if (!req.body.email) {
@@ -1412,6 +1520,8 @@ const getTaggedUsers = async (req, res) => {
 
 module.exports = {
     searchCorporate,
+    postjobs: postjobs,
+    jobID: jobID,
     trackProfileVisit,
     getRecentSearch: getRecentSearch,
     getPopularProfile: getPopularProfile,
