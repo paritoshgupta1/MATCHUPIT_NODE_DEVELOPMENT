@@ -37,6 +37,8 @@ const Config = require('../mediaService/config');
 const pdf = require('html-pdf');
 const Community = require('../models/schemas/community');
 const Posts = require('../models/schemas/post');
+const crawler = require('crawler-request');
+const resume_parser = require('../lib/resume-parser');
 
 async function signup(payload) {
   try {
@@ -2016,6 +2018,24 @@ async function recoveryVerify(inputOTP, inputEmail, r, tokenData) {
   }
 }
 
+async function getresumeData(req) {
+  //npm i bluebird --save
+  //npm i crawler-request --save
+  
+  const response=await crawler(req.body.fileUrl);
+  const resume_data=await resume_parser.linkedin(response.text);
+  return responseObj(false, 200, 'Resume parsed succesfully', {parsed_data:resume_data})
+  
+    // await crawler(req.body.url).then(function(response){
+    // 	resume_parser.linkedin(response.text)
+    //     .then((resume_data) => {
+    //       return responseObj(true, 200, 'RFesume parsed succesfully', {parsed_data:"data"})
+    //   })
+    //     .catch((error) => {
+    //       reject(error);
+    //     }); 
+    //   });
+  }
 
 async function getUserData(req) {
   try {
@@ -2804,6 +2824,7 @@ module.exports = {
   updateEmail,
   recoveryVerify,
   getUserData,
+  getresumeData,
   downloadPdf,
   getUserJobDetails,
   addUserJobDetails,
