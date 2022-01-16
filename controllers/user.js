@@ -727,10 +727,10 @@ const recoveryVerify = async (req, res) => {
   }
 }
 
-const getresumeData = async (req, res) => {
-  const serviceResponse = await userService.getresumeData(req);
-  return sendResponse(serviceResponse, res)
-  }
+// const getresumeData = async (req, res) => {
+//   const serviceResponse = await userService.getresumeData(req);
+//   return sendResponse(serviceResponse, res)
+//   }
 
 const getUserData = async (req, res) => {
   try {
@@ -902,7 +902,7 @@ module.exports = {
   updateEmail,
   recoveryVerify,
   getUserData,
-  getresumeData,
+  // getresumeData,
   downloadPdf,
   getUserJobDetails,
   addUserJobDetails,
