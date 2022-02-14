@@ -55,7 +55,7 @@ async function socialAccountHandler (user) {
             order_id: orderResponse.id,
             user_id: userId,
             start_date: new Date(),
-            end_date: moment(new Date(), "DD-MM-YYYY").add(12, 'months'),
+            end_date: moment(new Date(), "DD-MM-YYYY").add(24, 'months'),
             is_disabled: false,
             subscription_plan_type: 5
           })
@@ -64,7 +64,7 @@ async function socialAccountHandler (user) {
             to: userRec.email,
             subject: 'matchupIT sign up',
             html: `<p>Dear User,</p>
-            <p>You have registered ${userRec.email} with MatchupIt as an individual user. Please provide/update your information and explore all the features. Your account will be active for 12 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
+            <p>You have registered ${userRec.email} with MatchupIt as an individual user. Please provide/update your information and explore all the features. Your account will be active for 24 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
           }
           await sendMail(emailPayload);
     }
