@@ -37,6 +37,8 @@ const Config = require('../mediaService/config');
 const pdf = require('html-pdf');
 const Community = require('../models/schemas/community');
 const Posts = require('../models/schemas/post');
+// const crawler = require('crawler-request');
+// const resume_parser = require('../lib/resume-parser');
 
 async function signup(payload) {
   try {
@@ -116,7 +118,7 @@ async function signup(payload) {
             order_id: orderResponse.id,
             user_id: userId,
             start_date: new Date(),
-            end_date: moment(new Date(), "DD-MM-YYYY").add(12, 'months'),
+            end_date: moment(new Date(), "DD-MM-YYYY").add(24, 'months'),
             is_disabled: false,
             subscription_plan_type: 5
           })
@@ -125,7 +127,7 @@ async function signup(payload) {
             to: payload.email,
             subject: 'matchupIT sign up',
             html: `<p>Dear User,</p>
-            <p>You have registered ${payload.email} with MatchupIt as an individual user. Please provide/update your information and explore all the features. Your account will be active for 12 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
+            <p>You have registered ${payload.email} with MatchupIt as an individual user. Please provide/update your information and explore all the features. Your account will be active for 24 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
           }
           await sendMail(emailPayload);
           userObj.token = generateJWT(userObj);
@@ -186,7 +188,7 @@ async function signup(payload) {
           order_id: orderResponse.id,
           user_id: userId,
           start_date: new Date(),
-          end_date: moment(new Date(), "DD-MM-YYYY").add(12, 'months'),
+          end_date: moment(new Date(), "DD-MM-YYYY").add(24, 'months'),
           is_disabled: false,
           subscription_plan_type: 5
         })
@@ -195,7 +197,7 @@ async function signup(payload) {
           to: payload.email,
           subject: 'matchupIT sign up',
           html: `<p>Dear User,</p>
-          <p>You have registered ${payload.email} with MatchupIt as an individual user. Please provide/update your information and explore all the features. Your account will be active for 12 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
+          <p>You have registered ${payload.email} with MatchupIt as an individual user. Please provide/update your information and explore all the features. Your account will be active for 24 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
         }
         await sendMail(emailPayload);
         userObj.token = generateJWT(userObj)
@@ -266,7 +268,7 @@ async function signup(payload) {
         order_id: orderResponse.id,
         user_id: corporateId,
         start_date: new Date(),
-        end_date: moment(new Date(), "DD-MM-YYYY").add(6, 'months'),
+        end_date: moment(new Date(), "DD-MM-YYYY").add(12, 'months'),
         is_disabled: false,
         subscription_plan_type: 5
       })
@@ -275,7 +277,7 @@ async function signup(payload) {
         to: payload.email,
         subject: 'matchupIT sign up ',
         html: `<p>Dear User</p>
-        <p>You have registered ${payload.email} with MatchupIt as a corporate user. Kindly fillup all your information and explore all the features available. Your account will be active for 6 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
+        <p>You have registered ${payload.email} with MatchupIt as a corporate user. Kindly fillup all your information and explore all the features available. Your account will be active for 12 months. Subscribe for a suitable plan to have an uninterrupted access to the platform.</p>`
       }
       await sendMail(emailPayload);
       corporateObj.token = generateJWT(corporateObj)
@@ -2016,6 +2018,24 @@ async function recoveryVerify(inputOTP, inputEmail, r, tokenData) {
   }
 }
 
+// async function getresumeData(req) {
+//   //npm i bluebird --save
+//   //npm i crawler-request --save
+  
+//   const response=await crawler(req.body.fileUrl);
+//   const resume_data=await resume_parser.linkedin(response.text);
+//   return responseObj(false, 200, 'Resume parsed succesfully', {parsed_data:resume_data})
+  
+//     // await crawler(req.body.url).then(function(response){
+//     // 	resume_parser.linkedin(response.text)
+//     //     .then((resume_data) => {
+//     //       return responseObj(true, 200, 'RFesume parsed succesfully', {parsed_data:"data"})
+//     //   })
+//     //     .catch((error) => {
+//     //       reject(error);
+//     //     }); 
+//     //   });
+//   }
 
 async function getUserData(req) {
   try {
@@ -2804,6 +2824,7 @@ module.exports = {
   updateEmail,
   recoveryVerify,
   getUserData,
+  // getresumeData,
   downloadPdf,
   getUserJobDetails,
   addUserJobDetails,
