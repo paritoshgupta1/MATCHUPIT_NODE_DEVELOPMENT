@@ -58,7 +58,7 @@ router.put('/update-email', authMiddleware.handleToken, userCtrl.updateEmail);
 
 router.post('/get-user-data', authMiddleware.handleToken, userCtrl.getUserData);
 
-// router.post('/resume-parser', userCtrl.getresumeData);
+router.post('/resume-parser', userCtrl.getresumeData);
 
 router.post('/download-pdf', authMiddleware.handleToken, userCtrl.downloadPdf);
 
